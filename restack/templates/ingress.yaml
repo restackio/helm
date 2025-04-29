@@ -1,0 +1,68 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "restack.fullname" . -}}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  annotations:
+    {{- if .Values.ingress.annotations }}
+      {{- toYaml .Values.ingress.annotations | nindent 4 }}
+    {{- end }}
+    kubernetes.io/ingress.class: "nginx"
+    "nginx.ingress.kubernetes.io/proxy-read-timeout": "3600"
+    "nginx.ingress.kubernetes.io/proxy-send-timeout": "3600"
+spec:
+  tls:
+    - hosts:
+      {{- range .Values.ingress.hosts }}
+      - {{ .host | quote }}
+      {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 5233
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: 5233
+              {{- end }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 6233
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: 6233
+              {{- end }}
+          - path: /stream
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}-stream
+                port:
+                  number: 9233
+              {{- else }}
+              serviceName: {{ $fullName }}-stream
+              servicePort: 9233
+              {{- end }}
+    {{- end }}
+{{- end }}

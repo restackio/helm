@@ -1,0 +1,41 @@
+{{- if .Values.pipeline.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "restack.fullname" . }}-pipeline-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "restack.fullname" . }}-pipeline
+  minReplicas: {{ .Values.pipeline.hpa.minReplicas }}
+  maxReplicas: {{ .Values.pipeline.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.pipeline.hpa.averageUtilization.cpu }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.pipeline.hpa.averageUtilization.memory }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0 # default value for scale up
+      selectPolicy: Max # default value
+      policies:
+        - type: Pods
+          value: 1 # default value for scale up
+          periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 600 # default value for scale down
+      selectPolicy: Max # default value
+      policies:
+        - type: Pods
+          value: 1 # default value for scale down
+          periodSeconds: 60
+{{- end }}
