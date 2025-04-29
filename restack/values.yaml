@@ -1,6 +1,6 @@
 
 image:
-  repository: ghcr.io/restackio/restack-cloud
+  repository: ""
   tag: latest
   pullPolicy: Always
 
