@@ -22,7 +22,7 @@ helm install my-restack restack --values https://raw.githubusercontent.com/resta
 Or, to use your own custom values:
 
 ```
-helm install my-restack restack/helm -f restack/values-custom.yaml
+helm install my-restack restack -f restack/values-custom.yaml
 ```
 
 ## Configuration
