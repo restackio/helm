@@ -1,0 +1,12 @@
+{{- if .Values.resourceQuota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ include "restack.fullname" . }}
+spec:
+  hard:
+    requests.cpu: {{ .Values.resourceQuota.requests.cpu }}
+    requests.memory: {{ .Values.resourceQuota.requests.memory }}
+    limits.cpu: {{ .Values.resourceQuota.limits.cpu }}
+    limits.memory: {{ .Values.resourceQuota.limits.memory }}
+{{- end }}
