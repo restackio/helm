@@ -1,5 +1,5 @@
 image:
-  repository: my-image
+  repository: my-ocr
   tag: latest
   pullPolicy: Never
 
@@ -150,9 +150,8 @@ service:
   type: ClusterIP
 
 ingress:
-  hosts:
-    - host: minikube.local
-  enabled: true
+  hosts: []
+  enabled: false
   annotations: {}
 
 nodeSelector: {}
