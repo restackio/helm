@@ -1,0 +1,180 @@
+image:
+  repository: my-image
+  tag: latest
+  pullPolicy: Never
+
+livenessProbe:
+  enabled: false
+# initialDelaySeconds: 10
+# periodSeconds: 10
+# timeoutSeconds: 1
+# successThreshold: 1
+# failureThreshold: 3
+
+readinessProbe:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+backend:
+  hpa:
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 100
+    averageUtilization:
+      cpu: 80
+      memory: 80
+
+pipeline:
+  image:
+    repository: 
+    tag: latest
+    pullPolicy: Always
+
+  terminationGracePeriodSeconds: 600
+
+  livenessProbe:
+    enabled: false
+  readinessProbe:
+    enabled: false
+
+  hpa:
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 20
+    averageUtilization:
+      cpu: 75
+      memory: 75
+
+  resources:
+    limits:
+      cpu: 50m
+      memory: 1Gi
+    requests:
+      cpu: 50m
+      memory: 1Gi
+
+# Engine deployments
+
+engine:
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+stream:
+  hpa:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    averageUtilization:
+      cpu: 80
+      memory: 80
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 125m
+      memory: 256Mi
+
+operator:
+  hpa:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 6
+    averageUtilization:
+      cpu: 80
+      memory: 80
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 125m
+      memory: 256Mi
+
+logs:
+  enabled: false
+  gcp:
+    bucket: 
+  aws:
+    bucket: 
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+envs:
+  RESTACK_ENGINE_ADDRESS: "temporal-frontend-headless.default.svc.cluster.local:7233"
+  RESTACK_ENGINE_API_ADDRESS: "restack-1-restack-helm.default.svc.cluster.local:6233"
+  RESTACK_ENGINE_API_KEY: "e019a55620c4e6396904b022e2864bc04098870084ea6d44e81816caf0f75e3b"
+  RESTACK_ENGINE_ID: "local"
+
+secrets: []
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+
+ingress:
+  hosts: []
+  enabled: false
+  annotations: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+vpa:
+  enabled: false
+  updateMode: 'Auto'
+  minAllowed:
+    cpu: 25m
+    memory: 64Mi
+  maxAllowed:
+    cpu: 100m
+    memory: 256Mi
+
+resourceQuota:
+  enabled: false
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 256Mi

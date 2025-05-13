@@ -16,13 +16,13 @@ helm repo update
 ### Install the Chart
 
 ```
-helm install my-restack restack --values https://raw.githubusercontent.com/restackio/helm/main/restack/values.yaml
+helm install restack-1 restack/restack-helm --values https://raw.githubusercontent.com/restackio/helm/main/restack/values.yaml
 ```
 
 Or, to use your own custom values:
 
 ```
-helm install my-restack restack -f restack/values-custom.yaml
+helm install restack-1 restack/restack-helm -f ./values.yaml
 ```
 
 ## Configuration
