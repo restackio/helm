@@ -1,5 +1,5 @@
 image:
-  repository: my-ocr
+  repository: my-image
   tag: latest
   pullPolicy: Never
 
