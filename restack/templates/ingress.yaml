@@ -64,5 +64,17 @@ spec:
               serviceName: {{ $fullName }}-stream
               servicePort: 9233
               {{- end }}
+          - path: /operator
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}-operator
+                port:
+                  number: 10233
+              {{- else }}
+              serviceName: {{ $fullName }}-operator
+              servicePort: 10233
+              {{- end }}
     {{- end }}
 {{- end }}
