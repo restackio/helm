@@ -1,4 +1,4 @@
-{{- if .Values.pipeline.hpa.enabled }}
+{{- if and .Values.pipeline.hpa.enabled .Values.pipeline.image.repository }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -11,18 +11,20 @@ spec:
   minReplicas: {{ .Values.pipeline.hpa.minReplicas }}
   maxReplicas: {{ .Values.pipeline.hpa.maxReplicas }}
   metrics:
-    - type: Resource
-      resource:
+    - type: ContainerResource
+      containerResource:
         name: cpu
         target:
           type: Utilization
           averageUtilization: {{ .Values.pipeline.hpa.averageUtilization.cpu }}
-    - type: Resource
-      resource:
+        container: {{ .Chart.Name }}-pipeline
+    - type: ContainerResource
+      containerResource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ .Values.pipeline.hpa.averageUtilization.memory }}
+        container: {{ .Chart.Name }}-pipeline
   behavior:
     scaleUp:
       stabilizationWindowSeconds: 0 # default value for scale up
