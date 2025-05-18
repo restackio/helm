@@ -11,18 +11,20 @@ spec:
   minReplicas: {{ .Values.operator.hpa.minReplicas }}
   maxReplicas: {{ .Values.operator.hpa.maxReplicas }}
   metrics:
-    - type: Resource
-      resource:
+    - type: ContainerResource
+      containerResource:
         name: cpu
         target:
           type: Utilization
           averageUtilization: {{ .Values.operator.hpa.averageUtilization.cpu }}
-    - type: Resource
-      resource:
+        container: {{ .Chart.Name }}-operator
+    - type: ContainerResource
+      containerResource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ .Values.operator.hpa.averageUtilization.memory }}
+        container: {{ .Chart.Name }}-operator
   behavior:
     scaleUp:
       stabilizationWindowSeconds: 0 # increased stabilization window for scale up

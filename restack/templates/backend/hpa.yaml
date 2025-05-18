@@ -11,15 +11,17 @@ spec:
   minReplicas: {{ .Values.backend.hpa.minReplicas }}
   maxReplicas: {{ .Values.backend.hpa.maxReplicas }}
   metrics:
-    - type: Resource
-      resource:
+    - type: ContainerResource
+      containerResource:
         name: cpu
+        container: {{ .Chart.Name }}-backend
         target:
           type: Utilization
-          averageUtilization: {{ .Values.backend.hpa.averageUtilization.cpu }}
-    - type: Resource
-      resource:
+          averageUtilization: {{ .Values.backend.hpa.averageUtilization.cpu }}    
+    - type: ContainerResource
+      containerResource:
         name: memory
+        container: {{ .Chart.Name }}-backend
         target:
           type: Utilization
           averageUtilization: {{ .Values.backend.hpa.averageUtilization.memory }}

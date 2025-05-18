@@ -1,8 +1,8 @@
-envs: '{{ input.multiple:ENVS }}'
+envs: "{{ input.multiple:ENVS }}"
 logs:
-  bucket: '{{ restack_logs_bucket:BUCKET }}'
+  bucket: "{{ restack_logs_bucket:BUCKET }}"
 image:
-  tag: '{{ restack_image_tag:IMAGE=latest }}'
+  tag: "{{ restack_image_tag:IMAGE=latest }}"
 engine:
   resources:
     limits:
@@ -13,8 +13,23 @@ engine:
       memory: 1Gi
 stream:
   hpa:
-    enabled: '{{ restack_hpa_enabled:HPA=false }}'
-    maxReplicas: '{{ input:STREAM_MAX_REPLICAS=4 }}'
+    enabled: "{{ restack_hpa_enabled:HPA=false }}"
+    maxReplicas: "{{ input:STREAM_MAX_REPLICAS=4 }}"
+    minReplicas: 1
+    averageUtilization:
+      cpu: 80
+      memory: 80
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 125m
+      memory: 256Mi
+operator:
+  hpa:
+    enabled: "{{ restack_hpa_enabled:HPA=false }}"
+    maxReplicas: "{{ input:OPERATOR_MAX_REPLICAS=4 }}"
     minReplicas: 1
     averageUtilization:
       cpu: 80
@@ -28,27 +43,27 @@ stream:
       memory: 256Mi
 backend:
   hpa:
-    enabled: '{{ restack_hpa_enabled:HPA=false }}'
-    maxReplicas: '{{ input:BACKEND_MAX_REPLICAS=10 }}'
+    enabled: "{{ restack_hpa_enabled:HPA=false }}"
+    maxReplicas: "{{ input:BACKEND_MAX_REPLICAS=10 }}"
     minReplicas: 1
     averageUtilization:
       cpu: 80
       memory: 80
 ingress:
   hosts:
-    - host: '{{ restack_application_hostname:APP_HOSTNAME }}'
+    - host: "{{ restack_application_hostname:APP_HOSTNAME }}"
   enabled: true
-secrets: '{{ input.multiple.secrets:SECRETS }}'
+secrets: "{{ input.multiple.secrets:SECRETS }}"
 pipeline:
   hpa:
-    enabled: '{{ restack_hpa_enabled:HPA=false }}'
-    maxReplicas: '{{ input:PIPELINE_MAX_REPLICAS=2 }}'
+    enabled: "{{ restack_hpa_enabled:HPA=false }}"
+    maxReplicas: "{{ input:PIPELINE_MAX_REPLICAS=2 }}"
     minReplicas: 1
     averageUtilization:
       cpu: 75
       memory: 75
   image:
-    tag: '{{ restack_image_tag:VOICE_PIPELINE=latest }}'
+    tag: "{{ restack_image_tag:VOICE_PIPELINE=latest }}"
   resources:
     limits:
       cpu: 2000m
