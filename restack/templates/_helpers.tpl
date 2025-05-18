@@ -108,6 +108,23 @@ app.kubernetes.io/name: {{ include "restack.name" . }}-pipeline
 app.kubernetes.io/instance: {{ .Release.Name }}-pipeline
 {{- end -}}
 
+{{- define "restack.operatorLabels" -}}
+helm.sh/chart: {{ include "restack.chart" . }}
+{{ include "restack.operatorSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Operator selector labels
+*/}}
+{{- define "restack.operatorSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "restack.name" . }}-operator
+app.kubernetes.io/instance: {{ .Release.Name }}-operator
+{{- end -}}
+
 {{/*
 Create the name of the service account to use
 */}}
