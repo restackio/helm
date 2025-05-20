@@ -27,17 +27,17 @@ spec:
           averageUtilization: {{ .Values.backend.hpa.averageUtilization.memory }}
   behavior:
     scaleUp:
-      stabilizationWindowSeconds: 120 # increased stabilization window for scale up
+      stabilizationWindowSeconds: {{ .Values.backend.hpa.scaleUp.stabilizationWindowSeconds }} # increased stabilization window for scale up
       selectPolicy: Max
       policies:
         - type: Pods
-          value: 1 # reduced value for scale up
-          periodSeconds: 60
+          value: {{ .Values.backend.hpa.scaleUp.pods }} # reduced value for scale up
+          periodSeconds: {{ .Values.backend.hpa.scaleUp.periodSeconds }}
     scaleDown:
-      stabilizationWindowSeconds: 300 # increased stabilization window for scale down
+      stabilizationWindowSeconds: {{ .Values.backend.hpa.scaleDown.stabilizationWindowSeconds }} # increased stabilization window for scale down
       selectPolicy: Max
       policies:
         - type: Pods
-          value: 1 # reduced value for scale down
-          periodSeconds: 120
+          value: {{ .Values.backend.hpa.scaleDown.pods }} # reduced value for scale down
+          periodSeconds: {{ .Values.backend.hpa.scaleDown.periodSeconds }}
 {{- end }}

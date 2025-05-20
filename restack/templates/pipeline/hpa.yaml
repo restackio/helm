@@ -27,17 +27,17 @@ spec:
         container: {{ .Chart.Name }}-pipeline
   behavior:
     scaleUp:
-      stabilizationWindowSeconds: 0 # default value for scale up
+      stabilizationWindowSeconds: {{ .Values.pipeline.hpa.scaleUp.stabilizationWindowSeconds }} # default value for scale up
       selectPolicy: Max # default value
       policies:
         - type: Pods
-          value: 1 # default value for scale up
-          periodSeconds: 30
+          value: {{ .Values.pipeline.hpa.scaleUp.pods }} # default value for scale up
+          periodSeconds: {{ .Values.pipeline.hpa.scaleUp.periodSeconds }}
     scaleDown:
-      stabilizationWindowSeconds: 600 # default value for scale down
+      stabilizationWindowSeconds: {{ .Values.pipeline.hpa.scaleDown.stabilizationWindowSeconds }} # default value for scale down
       selectPolicy: Max # default value
       policies:
         - type: Pods
-          value: 1 # default value for scale down
-          periodSeconds: 60
+          value: {{ .Values.pipeline.hpa.scaleDown.pods }} # default value for scale down
+          periodSeconds: {{ .Values.pipeline.hpa.scaleDown.periodSeconds }}
 {{- end }}

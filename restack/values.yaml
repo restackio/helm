@@ -1,5 +1,4 @@
 image:
-  repository: ""
   tag: latest
   pullPolicy: Always
 
@@ -14,30 +13,35 @@ livenessProbe:
 readinessProbe:
   enabled: false
 
-resources:
-  limits:
-    cpu: 2000m
-    memory: 1Gi
-  requests:
-    cpu: 500m
-    memory: 1Gi
-
 backend:
   hpa:
     enabled: false
     minReplicas: 3
-    maxReplicas: 100
+    maxReplicas: 10
     averageUtilization:
-      cpu: 80
-      memory: 80
+      cpu: 75
+      memory: 75
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      pods: 1
+      periodSeconds: 120
+    scaleDown:
+      stabilizationWindowSeconds: 120
+      pods: 1
+      periodSeconds: 120
+  resources:
+    cpu: 2000m
+    memory: 1024Mi
 
 pipeline:
   image:
-    repository:
     tag: latest
     pullPolicy: Always
 
   terminationGracePeriodSeconds: 600
+  resources:
+    cpu: 50m
+    memory: 1024Mi
 
   livenessProbe:
     enabled: false
@@ -46,75 +50,72 @@ pipeline:
 
   hpa:
     enabled: false
-    minReplicas: 3
-    maxReplicas: 20
+    minReplicas: 1
+    maxReplicas: 4
     averageUtilization:
       cpu: 75
       memory: 75
-
-  resources:
-    limits:
-      cpu: 50m
-      memory: 1Gi
-    requests:
-      cpu: 50m
-      memory: 1Gi
-
-# Engine deployments
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      pods: 1
+      periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 600
+      pods: 1
+      periodSeconds: 60
 
 engine:
   resources:
-    limits:
-      cpu: 2000m
-      memory: 1Gi
-    requests:
-      cpu: 500m
-      memory: 1Gi
+    cpu: 2000m
+    memory: 1024Mi
 
 stream:
   hpa:
-    enabled: true
-    minReplicas: 3
-    maxReplicas: 20
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 4
     averageUtilization:
       cpu: 80
       memory: 80
-
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      pods: 1
+      periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      pods: 1
+      periodSeconds: 60
   resources:
-    limits:
-      cpu: 250m
-      memory: 256Mi
-    requests:
-      cpu: 125m
-      memory: 256Mi
+    cpu: 250m
+    memory: 256Mi
 
 operator:
   hpa:
-    enabled: true
-    minReplicas: 3
-    maxReplicas: 6
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
     averageUtilization:
       cpu: 80
       memory: 80
-
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      pods: 1
+      periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      pods: 1
+      periodSeconds: 60
   resources:
-    limits:
-      cpu: 250m
-      memory: 256Mi
-    requests:
-      cpu: 125m
-      memory: 256Mi
+    cpu: 250m
+    memory: 256Mi
+    
 
 logs:
-  enabled: false
-  gcp:
-    bucket:
-  aws:
-    bucket:
+  bucket: "default-bucket-name"
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: ''
+fullnameOverride: ''
 
 envs: []
 secrets: []
@@ -145,8 +146,7 @@ service:
   type: ClusterIP
 
 ingress:
-  hosts:
-    []
+  hosts: []
     # - host: restack_hostname
   enabled: true
   annotations: {}
@@ -159,7 +159,7 @@ affinity: {}
 
 vpa:
   enabled: false
-  updateMode: "Auto"
+  updateMode: 'Auto'
   minAllowed:
     cpu: 25m
     memory: 64Mi
