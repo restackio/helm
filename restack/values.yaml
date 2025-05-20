@@ -30,8 +30,8 @@ backend:
       pods: 1
       periodSeconds: 120
   resources:
-    cpu: 25m
-    memory: 128Mi
+    cpu: 2000m
+    memory: 1024Mi
 
 pipeline:
   image:
@@ -41,7 +41,7 @@ pipeline:
   terminationGracePeriodSeconds: 600
   resources:
     cpu: 50m
-    memory: 1Gi
+    memory: 1024Mi
 
   livenessProbe:
     enabled: false
@@ -66,8 +66,8 @@ pipeline:
 
 engine:
   resources:
-    cpu: 25m
-    memory: 128Mi
+    cpu: 2000m
+    memory: 1024Mi
 
 stream:
   hpa:
@@ -86,8 +86,8 @@ stream:
       pods: 1
       periodSeconds: 60
   resources:
-    cpu: 25m
-    memory: 128Mi
+    cpu: 250m
+    memory: 256Mi
 
 operator:
   hpa:
@@ -106,8 +106,8 @@ operator:
       pods: 1
       periodSeconds: 60
   resources:
-    cpu: 25m
-    memory: 128Mi
+    cpu: 250m
+    memory: 256Mi
     
 
 logs:
