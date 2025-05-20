@@ -3,6 +3,16 @@ entries:
   restack-helm:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-05-20T11:53:24.880590154Z"
+    description: Restack
+    digest: 5b660fef4bd3432194c15f7d36a71b2ff406865779b641c0e613e685a23fb617
+    name: restack-helm
+    type: application
+    urls:
+    - https://github.com/restackio/helm/releases/download/restack-helm-0.57.0/restack-helm-0.57.0.tgz
+    version: 0.57.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-05-18T17:31:20.44032263Z"
     description: Restack
     digest: 10fdbd8e0f9d6b489f92ec247e7fb3b1caea610a1752111cf0a3c66d38eca0cf
@@ -41,4 +51,4 @@ entries:
     urls:
     - https://github.com/restackio/helm/releases/download/restack-helm-0.51.0/restack-helm-0.51.0.tgz
     version: 0.51.0
-generated: "2025-05-18T17:31:20.440337027Z"
+generated: "2025-05-20T11:53:24.880609329Z"
