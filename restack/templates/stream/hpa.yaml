@@ -27,17 +27,17 @@ spec:
         container: {{ .Chart.Name }}-stream
   behavior:
     scaleUp:
-      stabilizationWindowSeconds: 0 # increased stabilization window for scale up
+      stabilizationWindowSeconds: {{ .Values.stream.hpa.scaleUp.stabilizationWindowSeconds }} # increased stabilization window for scale up
       selectPolicy: Max
       policies:
         - type: Pods
-          value: 1 # reduced value for scale up
-          periodSeconds: 30
+          value: {{ .Values.stream.hpa.scaleUp.pods }} # reduced value for scale up
+          periodSeconds: {{ .Values.stream.hpa.scaleUp.periodSeconds }}
     scaleDown:
-      stabilizationWindowSeconds: 300 # increased stabilization window for scale down
+      stabilizationWindowSeconds: {{ .Values.stream.hpa.scaleDown.stabilizationWindowSeconds }} # increased stabilization window for scale down
       selectPolicy: Max
       policies:
         - type: Pods
-          value: 1 # reduced value for scale down
-          periodSeconds: 60
+          value: {{ .Values.stream.hpa.scaleDown.pods }} # reduced value for scale down
+          periodSeconds: {{ .Values.stream.hpa.scaleDown.periodSeconds }}
 {{- end }}

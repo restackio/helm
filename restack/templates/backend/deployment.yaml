@@ -80,7 +80,12 @@ spec:
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
           {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            limits:
+              cpu: {{ .Values.backend.resources.cpu }}
+              memory: {{ .Values.backend.resources.memory }}
+            requests:
+              cpu: {{ .Values.backend.resources.cpu }}
+              memory: {{ .Values.backend.resources.memory }}
         
         {{- if .Values.logs.enabled }}
         # Sidecar container for logging

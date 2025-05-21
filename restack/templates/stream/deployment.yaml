@@ -55,7 +55,12 @@ spec:
               name: stream
               containerPort: 9233
           resources:
-            {{- toYaml .Values.stream.resources | nindent 12 }}
+            limits:
+              cpu: {{ .Values.stream.resources.cpu }}
+              memory: {{ .Values.stream.resources.memory }}
+            requests:
+              cpu: {{ .Values.stream.resources.cpu }}
+              memory: {{ .Values.stream.resources.memory }}
 
         {{- if .Values.logs.enabled }}
         # Sidecar container for logging

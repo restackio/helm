@@ -52,7 +52,12 @@ spec:
             - containerPort: 10233
               name: operator
           resources:
-            {{- toYaml .Values.operator.resources | nindent 12 }}
+            limits:
+              cpu: {{ .Values.operator.resources.cpu }}
+              memory: {{ .Values.operator.resources.memory }}
+            requests:
+              cpu: {{ .Values.operator.resources.cpu }}
+              memory: {{ .Values.operator.resources.memory }}
 
         {{- if .Values.logs.enabled }}
         # Sidecar container for logging

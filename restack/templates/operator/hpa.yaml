@@ -14,30 +14,30 @@ spec:
     - type: ContainerResource
       containerResource:
         name: cpu
+        container: {{ .Chart.Name }}-operator
         target:
           type: Utilization
-          averageUtilization: {{ .Values.operator.hpa.averageUtilization.cpu }}
-        container: {{ .Chart.Name }}-operator
+          averageUtilization: {{ .Values.operator.hpa.averageUtilization.cpu }}    
     - type: ContainerResource
       containerResource:
         name: memory
+        container: {{ .Chart.Name }}-operator
         target:
           type: Utilization
           averageUtilization: {{ .Values.operator.hpa.averageUtilization.memory }}
-        container: {{ .Chart.Name }}-operator
   behavior:
     scaleUp:
-      stabilizationWindowSeconds: 0 # increased stabilization window for scale up
+      stabilizationWindowSeconds: {{ .Values.operator.hpa.scaleUp.stabilizationWindowSeconds }} # increased stabilization window for scale up
       selectPolicy: Max
       policies:
         - type: Pods
-          value: 1 # reduced value for scale up
-          periodSeconds: 30
+          value: {{ .Values.operator.hpa.scaleUp.pods }} # reduced value for scale up
+          periodSeconds: {{ .Values.operator.hpa.scaleUp.periodSeconds }}
     scaleDown:
-      stabilizationWindowSeconds: 300 # increased stabilization window for scale down
+      stabilizationWindowSeconds: {{ .Values.operator.hpa.scaleDown.stabilizationWindowSeconds }} # increased stabilization window for scale down
       selectPolicy: Max
       policies:
         - type: Pods
-          value: 1 # reduced value for scale down
-          periodSeconds: 60
+          value: {{ .Values.operator.hpa.scaleDown.pods }} # reduced value for scale down
+          periodSeconds: {{ .Values.operator.hpa.scaleDown.periodSeconds }}
 {{- end }}
