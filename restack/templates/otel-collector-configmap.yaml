@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "restack.fullname" . }}-otel-collector
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: "0.0.0.0:4317"
+          http:
+            endpoint: "0.0.0.0:4318"
+
+    processors:
+      batch: {}
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 75
+        spike_limit_percentage: 15
+
+    exporters:
+      {{- if eq .Values.opentelemetry.sidecar.exporter "aws" }}
+      otlphttp/aws: # Exporter for sending to AWS AMP/OTLP endpoint
+        endpoint: {{ .Values.opentelemetry.sidecar.env.otelExporterOtlpEndpoint | quote }}
+        auth:
+          authenticator: sigv4auth # Will use the sigv4auth extension defined below
+      {{- else if eq .Values.opentelemetry.sidecar.exporter "gcp" }}
+      googlecloudprometheus:
+        project_id: {{ .Values.opentelemetry.sidecar.gcp.projectId | quote }}
+        # For GMP, endpoint is typically not needed unless non-default.
+        # user_agent: "{{ include "restack.fullname" . }}-otel-collector/{{ .Chart.AppVersion }}"
+        metric:
+          prefix: prometheus.googleapis.com # Default prefix for GMP
+          # More configs like 'skip_creating_descriptors' or 'add_metric_suffixes' can be added if needed.
+      {{- else }}
+      otlphttp/generic: # Default generic OTLP exporter
+        endpoint: {{ .Values.opentelemetry.sidecar.env.otelExporterOtlpEndpoint | default "http://localhost:4318" | quote }}
+        # Example for TLS (make these configurable in values.yaml if needed):
+        # tls:
+        #   insecure: {{ .Values.opentelemetry.sidecar.env.otelExporterOtlpInsecure | default true }}
+        #   ca_file: /path/to/ca.pem
+        #   cert_file: /path/to/cert.pem
+        #   key_file: /path/to/key.pem
+        # headers:
+        #   Authorization: "Bearer ${MY_TOKEN_ENV_VAR}" # If you need to pass tokens from actual env vars
+      {{- end }}
+
+      # For scraping collector's own metrics by the local Prometheus (if observability is enabled)
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+        # namespace: "{{ include \"restack.fullname\" . }}"
+
+    {{- if eq .Values.opentelemetry.sidecar.exporter "aws" }}
+    extensions:
+      sigv4auth:
+        region: {{ .Values.opentelemetry.sidecar.aws.region | quote }}
+        service: "aps" # For AWS Managed Prometheus (AMP). Use "aoss" for Amazon OpenSearch Serverless.
+    {{- end }}
+
+    service:
+      {{- if eq .Values.opentelemetry.sidecar.exporter "aws" }}
+      extensions: [sigv4auth] # Enable sigv4auth extension if AWS exporter is used
+      {{- end }}
+      pipelines:
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters:
+            {{- if eq .Values.opentelemetry.sidecar.exporter "aws" }}
+            - otlphttp/aws
+            {{- else if eq .Values.opentelemetry.sidecar.exporter "gcp" }}
+            - googlecloudprometheus
+            {{- else }}
+            - otlphttp/generic
+            {{- end }}
+            - prometheus # Also export to local Prometheus scraper if observability is enabled
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters:
+            {{- if eq .Values.opentelemetry.sidecar.exporter "aws" }}
+            # Assuming traces also go to an OTLP endpoint authenticated with SigV4 for AWS.
+            # If X-Ray is used, 'awsxray' exporter would be more appropriate.
+            - otlphttp/aws
+            {{- else if eq .Values.opentelemetry.sidecar.exporter "gcp" }}
+            # For GCP traces, 'googlecloud' exporter is typically used.
+            # This is a simplification; a dedicated 'googlecloud' exporter might be better if not using a generic OTLP endpoint for traces.
+            - otlphttp/generic # Defaulting to generic if specific trace endpoint for GCP is OTLP
+            {{- else }}
+            - otlphttp/generic
+            {{- end }}
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters:
+            {{- if eq .Values.opentelemetry.sidecar.exporter "aws" }}
+            # For AWS logs (e.g., to CloudWatch), 'awscloudwatchlogs' or 'awsemf' exporter is common.
+            # This is a simplification, assuming logs go to an OTLP endpoint using sigv4auth.
+            - otlphttp/aws
+            {{- else if eq .Values.opentelemetry.sidecar.exporter "gcp" }}
+            # For GCP logs, 'googlecloudlogs' exporter is common.
+            - otlphttp/generic # Defaulting to generic if specific log endpoint for GCP is OTLP
+            {{- else }}
+            - otlphttp/generic
+            {{- end }} 

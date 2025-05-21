@@ -1,0 +1,18 @@
+{{- if and .Values.observability.enabled .Values.observability.prometheus.enabled .Values.observability.prometheus.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "restack.fullname" . }}-prometheus
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+spec:
+  accessModes:
+    {{- toYaml .Values.observability.prometheus.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.observability.prometheus.persistence.size }}
+  {{- if .Values.observability.prometheus.persistence.storageClassName }}
+  storageClassName: {{ .Values.observability.prometheus.persistence.storageClassName }}
+  {{- end }}
+{{- end }} 

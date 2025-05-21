@@ -1,0 +1,19 @@
+{{- if and .Values.observability.enabled .Values.observability.grafana.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "restack.fullname" . }}-grafana
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: grafana
+spec:
+  type: {{ .Values.observability.grafana.service.type | default "ClusterIP" }}
+  ports:
+    - port: {{ .Values.observability.grafana.service.port | default .Values.observability.grafana.port | default 3000 }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "restack.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: grafana
+{{- end }} 

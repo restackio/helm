@@ -1,0 +1,18 @@
+{{- if and .Values.observability.enabled .Values.observability.grafana.enabled .Values.observability.grafana.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "restack.fullname" . }}-grafana
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: grafana
+spec:
+  accessModes:
+    {{- toYaml .Values.observability.grafana.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.observability.grafana.persistence.size }}
+  {{- if .Values.observability.grafana.persistence.storageClassName }}
+  storageClassName: {{ .Values.observability.grafana.persistence.storageClassName }}
+  {{- end }}
+{{- end }} 

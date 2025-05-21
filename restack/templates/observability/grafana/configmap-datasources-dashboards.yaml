@@ -1,0 +1,55 @@
+{{- if and .Values.observability.enabled .Values.observability.grafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "restack.fullname" . }}-grafana-datasources
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: grafana
+    # For Grafana sidecar discovery if used
+    grafana_datasource: "1"
+data:
+  prometheus-datasource.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://{{ include "restack.fullname" . }}-prometheus:{{ .Values.observability.prometheus.service.port | default .Values.observability.prometheus.port | default 9090 }}
+      access: proxy
+      isDefault: true
+      jsonData:
+        {{- if .Values.observability.grafana.prometheusScrapeInterval }}
+        timeInterval: "{{ .Values.observability.grafana.prometheusScrapeInterval }}"
+        {{- else if .Values.observability.prometheus.config.scrape_interval }}
+        timeInterval: "{{ .Values.observability.prometheus.config.scrape_interval }}"
+        {{- else }}
+        timeInterval: "15s"
+        {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "restack.fullname" . }}-grafana-dashboards
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: grafana
+    # For Grafana sidecar discovery if used
+    grafana_dashboard: "1"
+data:
+  # This is a provider definition for Grafana
+  # It tells Grafana to look in /var/lib/grafana/dashboards for JSON files
+  default-dashboard-provider.yaml: |
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
+  # Example: Add a default dashboard JSON here if you want one pre-loaded
+  # default-sample-dashboard.json: |
+  #   { ... your dashboard JSON content ... }
+{{- end }} 

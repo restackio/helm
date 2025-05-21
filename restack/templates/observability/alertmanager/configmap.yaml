@@ -1,0 +1,48 @@
+{{- if and .Values.observability.enabled .Values.observability.alertmanager.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "restack.fullname" . }}-alertmanager
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: alertmanager
+data:
+  alertmanager.yml: |
+    global:
+      # resolve_timeout: 5m # How long to wait before declaring an alert resolved after it stops firing
+    route:
+      group_by: ['alertname', 'job']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'null' # Default receiver if no other match
+      routes:
+      # - match:
+      #     alertname: Watchdog
+      #   receiver: 'null' # Example: silence watchdog alerts
+      - receiver: 'default-receiver' # All alerts go to this receiver if not otherwise routed
+        # Add more specific routes here if needed
+        # - match_re:
+        #     service: ^(service1|service2)$
+        #   receiver: 'service-specific-receiver'
+
+    receivers:
+    - name: 'null'
+    - name: 'default-receiver'
+      # email_configs:
+      # - to: 'your-email@example.com'
+      #   send_resolved: true
+      # slack_configs:
+      # - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+      #   channel: '#alerts'
+      #   send_resolved: true
+      # webhook_configs:
+      # - url: 'http://some-webhook-receiver/alert'
+      #   send_resolved: true
+    # - name: 'service-specific-receiver'
+    #   email_configs:
+    #   - to: 'service-team@example.com'
+
+    # templates:
+    # - '/etc/alertmanager/templates/*.tmpl'
+{{- end }} 

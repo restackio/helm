@@ -1,0 +1,18 @@
+{{- if and .Values.observability.enabled .Values.observability.alertmanager.enabled .Values.observability.alertmanager.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "restack.fullname" . }}-alertmanager
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: alertmanager
+spec:
+  accessModes:
+    {{- toYaml .Values.observability.alertmanager.persistence.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.observability.alertmanager.persistence.size }}
+  {{- if .Values.observability.alertmanager.persistence.storageClassName }}
+  storageClassName: {{ .Values.observability.alertmanager.persistence.storageClassName }}
+  {{- end }}
+{{- end }} 

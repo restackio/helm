@@ -1,0 +1,72 @@
+{{- if and .Values.observability.enabled .Values.observability.alertmanager.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "restack.fullname" . }}-alertmanager
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: alertmanager
+spec:
+  replicas: {{ .Values.observability.alertmanager.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "restack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: alertmanager
+  template:
+    metadata:
+      labels:
+        {{- include "restack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: alertmanager
+      annotations:
+        checksum/config: {{ include (print .Template.BasePath "/observability/alertmanager/configmap.yaml") . | sha256sum }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.observability.alertmanager.podSecurityContext | default .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: alertmanager
+          image: "{{ .Values.observability.alertmanager.image.repository }}:{{ .Values.observability.alertmanager.image.tag }}"
+          imagePullPolicy: {{ .Values.observability.alertmanager.image.pullPolicy }}
+          args:
+            - '--config.file=/etc/alertmanager/alertmanager.yml'
+            - '--storage.path=/alertmanager'
+            # Add other args as needed, e.g., --web.external-url, --cluster.listen-address for HA
+          ports:
+            - name: http
+              containerPort: {{ .Values.observability.alertmanager.port | default 9093 }}
+              protocol: TCP
+            {{- if gt (int ( .Values.observability.alertmanager.replicaCount | default 1 )) 1 }}
+            - name: mesh # Port for mesh networking in HA mode
+              containerPort: 9094 # Default Alertmanager mesh port
+              protocol: TCP
+            {{- end }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/alertmanager
+            - name: storage-volume
+              mountPath: /alertmanager
+          resources:
+            {{- toYaml .Values.observability.alertmanager.resources | nindent 12 }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "restack.fullname" . }}-alertmanager
+        - name: storage-volume
+        {{- if .Values.observability.alertmanager.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "restack.fullname" . }}-alertmanager
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+      {{- with .Values.observability.alertmanager.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.observability.alertmanager.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.observability.alertmanager.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }} 

@@ -1,0 +1,76 @@
+{{- if and .Values.observability.enabled .Values.observability.prometheus.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "restack.fullname" . }}-prometheus
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+spec:
+  replicas: {{ .Values.observability.prometheus.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "restack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: prometheus
+  template:
+    metadata:
+      labels:
+        {{- include "restack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: prometheus
+      annotations:
+        # This might be useful if you want the pod to be scraped by a wider Prometheus operator
+        # prometheus.io/scrape: "true"
+        # prometheus.io/port: "{{ .Values.observability.prometheus.port | default 9090 }}"
+        checksum/config: {{ include (print .Template.BasePath "/observability/prometheus/configmap.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "restack.fullname" . }}-prometheus # We'll create this RBAC
+      securityContext:
+        {{- toYaml .Values.observability.prometheus.podSecurityContext | default .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: prometheus
+          image: "{{ .Values.observability.prometheus.image.repository }}:{{ .Values.observability.prometheus.image.tag }}"
+          imagePullPolicy: {{ .Values.observability.prometheus.image.pullPolicy }}
+          args:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+            - '--web.console.templates=/usr/share/prometheus/consoles'
+            - '--web.enable-lifecycle' # To allow hot reloads of config
+            {{- if .Values.observability.prometheus.persistence.enabled }}
+            - '--storage.tsdb.retention.time={{ .Values.observability.prometheus.persistence.retentionTime }}'
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.observability.prometheus.port | default 9090 }}
+              protocol: TCP
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/prometheus
+            - name: storage-volume
+              mountPath: /prometheus
+          resources:
+            {{- toYaml .Values.observability.prometheus.resources | nindent 12 }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "restack.fullname" . }}-prometheus
+        - name: storage-volume
+        {{- if .Values.observability.prometheus.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "restack.fullname" . }}-prometheus
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+      {{- with .Values.observability.prometheus.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.observability.prometheus.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.observability.prometheus.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }} 

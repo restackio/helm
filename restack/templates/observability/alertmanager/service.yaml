@@ -1,0 +1,25 @@
+{{- if and .Values.observability.enabled .Values.observability.alertmanager.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "restack.fullname" . }}-alertmanager
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: alertmanager
+spec:
+  type: {{ .Values.observability.alertmanager.service.type | default "ClusterIP" }}
+  ports:
+    - port: {{ .Values.observability.alertmanager.service.port | default .Values.observability.alertmanager.port | default 9093 }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    {{- if gt (int ( .Values.observability.alertmanager.replicaCount | default 1 )) 1 }}
+    - port: 9094 # Default Alertmanager mesh port
+      targetPort: mesh
+      protocol: TCP
+      name: mesh
+    {{- end }}
+  selector:
+    {{- include "restack.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: alertmanager
+{{- end }} 

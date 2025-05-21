@@ -1,0 +1,19 @@
+{{- if and .Values.observability.enabled .Values.observability.prometheus.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "restack.fullname" . }}-prometheus
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+spec:
+  type: {{ .Values.observability.prometheus.service.type | default "ClusterIP" }}
+  ports:
+    - port: {{ .Values.observability.prometheus.service.port | default .Values.observability.prometheus.port | default 9090 }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "restack.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+{{- end }} 

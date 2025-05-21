@@ -1,0 +1,99 @@
+{{- if and .Values.observability.enabled .Values.observability.grafana.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "restack.fullname" . }}-grafana
+  labels:
+    {{- include "restack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: grafana
+spec:
+  replicas: {{ .Values.observability.grafana.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "restack.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: grafana
+  template:
+    metadata:
+      labels:
+        {{- include "restack.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: grafana
+      annotations:
+        checksum/config-datasources: {{ include (print .Template.BasePath "/observability/grafana/configmap-datasources-dashboards.yaml") . | sha256sum }} # For datasources configmap
+        # If you store dashboard JSONs in the configmap-dashboards, add checksum for it too:
+        # checksum/config-dashboards: {{ include (print .Template.BasePath "/observability/grafana/configmap-datasources-dashboards.yaml") . | sha256sum }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.observability.grafana.podSecurityContext | default .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: grafana
+          image: "{{ .Values.observability.grafana.image.repository }}:{{ .Values.observability.grafana.image.tag }}"
+          imagePullPolicy: {{ .Values.observability.grafana.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.observability.grafana.port | default 3000 }}
+              protocol: TCP
+          env:
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning
+            # Other Grafana environment variables can be set here
+            # For example, to change the instance name:
+            # - name: GF_APP_INSTANCE_NAME
+            #   value: "{{ include "restack.fullname" . }}-grafana"
+          {{- if .Values.observability.grafana.adminPassword }}
+          envFrom:
+            - secretRef:
+                name: {{ include "restack.fullname" . }}-grafana-admin
+          {{- else }}
+          # Set default admin password if not provided via secret (less secure)
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: {{ .Values.observability.grafana.adminUser | default "admin" | quote }}
+            - name: GF_SECURITY_ADMIN_PASSWORD # This will be visible in the deployment spec!
+              value: "admin" # Fallback password, strongly recommend setting .Values.observability.grafana.adminPassword
+          {{- end }}
+          volumeMounts:
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
+            - name: grafana-datasources
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: grafana-dashboards-provider
+              mountPath: /etc/grafana/provisioning/dashboards
+            # If you have dashboards defined in a configmap, mount them here
+            # - name: grafana-dashboards-default
+            #   mountPath: /var/lib/grafana/dashboards/default
+          resources:
+            {{- toYaml .Values.observability.grafana.resources | nindent 12 }}
+      volumes:
+        - name: grafana-datasources
+          configMap:
+            name: {{ include "restack.fullname" . }}-grafana-datasources
+        - name: grafana-dashboards-provider
+          configMap:
+            name: {{ include "restack.fullname" . }}-grafana-dashboards # For the provider config
+        # Example: If you put dashboard JSONs directly in the grafana-dashboards configmap, you'd mount it like this:
+        # - name: grafana-dashboards-default
+        #   configMap:
+        #     name: {{ include "restack.fullname" . }}-grafana-dashboards
+        #     items:
+        #       - key: default-sample-dashboard.json # Or whatever you named your dashboard JSON key
+        #         path: default-sample-dashboard.json
+        - name: grafana-storage
+        {{- if .Values.observability.grafana.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "restack.fullname" . }}-grafana
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+      {{- with .Values.observability.grafana.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.observability.grafana.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.observability.grafana.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }} 
