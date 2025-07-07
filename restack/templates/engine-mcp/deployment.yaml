@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "restack.fullname" . }}-operator
+  name: {{ include "restack.fullname" . }}-engine-mcp
   labels:
-    {{- include "restack.operatorLabels" . | nindent 4 }}
+    {{- include "restack.mcpLabels" . | nindent 4 }}
   annotations:
     reloader.stakater.com/search: "true"
 spec:
@@ -14,11 +14,11 @@ spec:
       maxUnavailable: 1
   selector:
     matchLabels:
-      {{- include "restack.operatorSelectorLabels" . | nindent 6 }}
+      {{- include "restack.mcpSelectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "restack.operatorSelectorLabels" . | nindent 8 }}
+        {{- include "restack.mcpSelectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -38,7 +38,7 @@ spec:
             curl -sS -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 60 --connect-timeout 3 --fail --retry-all-errors > /dev/null && exit 0 || echo 'Retry limit exceeded. Failed to wait for metadata server to be available. Check if the gke-metadata-server Pod in the kube-system namespace is healthy.' >&2; exit 1
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}-operator
+        - name: {{ .Chart.Name }}-mcp
           envFrom:
             - configMapRef:
                 name: {{ include "restack.fullname" . }}-configmap
@@ -46,18 +46,18 @@ spec:
                 name: {{ include "restack.fullname" . }}-secret
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: ghcr.io/restackio/restack-operator-cloud:main
+          image: ghcr.io/restackio/restack-mcp-cloud:main
           imagePullPolicy: Always
           ports:
-            - containerPort: 10233
-              name: operator
+            - containerPort: 11233
+              name: mcp
           resources:
             limits:
-              cpu: {{ .Values.operator.resources.cpu }}
-              memory: {{ .Values.operator.resources.memory }}
+              cpu: {{ .Values.mcp.resources.cpu }}
+              memory: {{ .Values.mcp.resources.memory }}
             requests:
-              cpu: {{ .Values.operator.resources.cpu }}
-              memory: {{ .Values.operator.resources.memory }}
+              cpu: {{ .Values.mcp.resources.cpu }}
+              memory: {{ .Values.mcp.resources.memory }}
 
         {{- if .Values.logs.enabled }}
         # Sidecar container for logging
@@ -70,13 +70,13 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: DEPLOYMENT_NAME
-              value: {{ include "restack.fullname" . }}-operator
+              value: {{ include "restack.fullname" . }}-mcp
             - name: GCS_BUCKET_NAME
               value: {{ .Values.logs.gcp.bucket }}
             - name: POD_SELECTOR
-              value: {{ include "restack.name" . }}-operator
+              value: {{ include "restack.name" . }}-mcp
             - name: CONTAINER_LOGS_NAME
-              value: {{ .Chart.Name }}-operator
+              value: {{ .Chart.Name }}-mcp
         {{- end }}
 
       {{- with .Values.nodeSelector }}

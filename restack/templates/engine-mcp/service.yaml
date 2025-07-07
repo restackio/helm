@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "restack.fullname" . }}-engine-mcp
+  labels:
+    {{- include "restack.mcpLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 11233
+      targetPort: 11233
+      protocol: TCP
+      name: engine-mcp
+      
+  selector:
+    {{- include "restack.operatorSelectorLabels" . | nindent 4 }}

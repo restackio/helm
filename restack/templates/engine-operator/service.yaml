@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "restack.fullname" . }}-operator
+  name: {{ include "restack.fullname" . }}-engine-operator
   labels:
     {{- include "restack.operatorLabels" . | nindent 4 }}
 spec:
@@ -10,7 +10,7 @@ spec:
     - port: 10233
       targetPort: 10233
       protocol: TCP
-      name: operator
+      name: engine-operator
       
   selector:
     {{- include "restack.operatorSelectorLabels" . | nindent 4 }}

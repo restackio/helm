@@ -2,12 +2,12 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "restack.fullname" . }}-operator-hpa
+  name: {{ include "restack.fullname" . }}-engine-operator-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "restack.fullname" . }}-operator
+    name: {{ include "restack.fullname" . }}-engine-operator
   minReplicas: {{ .Values.operator.hpa.minReplicas }}
   maxReplicas: {{ .Values.operator.hpa.maxReplicas }}
   metrics:

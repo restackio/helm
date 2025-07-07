@@ -1,16 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "restack.fullname" . }}
+  name: {{ include "restack.fullname" . }}-engine-api
   labels:
     {{- include "restack.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: 5233
-      targetPort: 5233
-      protocol: TCP
-      name: engine-frontend
     - port: 6233
       targetPort: 6233
       protocol: TCP
