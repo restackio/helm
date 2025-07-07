@@ -33,7 +33,7 @@ backend:
 
 pipeline:
   image:
-    repository: 
+    repository:
     tag: latest
     pullPolicy: Always
 
@@ -105,16 +105,33 @@ operator:
       cpu: 125m
       memory: 256Mi
 
+mcp:
+  hpa:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 6
+    averageUtilization:
+      cpu: 80
+      memory: 80
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 125m
+      memory: 256Mi
+
 logs:
   enabled: false
   gcp:
-    bucket: 
+    bucket:
   aws:
-    bucket: 
+    bucket:
 
 imagePullSecrets: []
-nameOverride: ''
-fullnameOverride: ''
+nameOverride: ""
+fullnameOverride: ""
 
 envs:
   RESTACK_ENGINE_ADDRESS: "temporal-frontend-headless.default.svc.cluster.local:7233"
@@ -162,7 +179,7 @@ affinity: {}
 
 vpa:
   enabled: false
-  updateMode: 'Auto'
+  updateMode: "Auto"
   minAllowed:
     cpu: 25m
     memory: 64Mi

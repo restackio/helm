@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "restack.fullname" . }}
+  name: {{ include "restack.fullname" . }}-engine-api
   labels:
     {{- include "restack.labels" . | nindent 4 }}
   annotations:
@@ -49,11 +49,6 @@ spec:
           image: ghcr.io/restackio/restack-cloud:main
           imagePullPolicy: Always
           ports:
-            - port: 5233
-              targetPort: 5233
-              protocol: TCP
-              name: engine-frontend
-              containerPort: 5233
             - port: 6233
               targetPort: 6233
               protocol: TCP

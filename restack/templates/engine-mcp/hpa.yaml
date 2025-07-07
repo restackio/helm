@@ -1,0 +1,43 @@
+{{- if .Values.mcp.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "restack.fullname" . }}-engine-mcp-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "restack.fullname" . }}-engine-mcp
+  minReplicas: {{ .Values.mcp.hpa.minReplicas }}
+  maxReplicas: {{ .Values.mcp.hpa.maxReplicas }}
+  metrics:
+    - type: ContainerResource
+      containerResource:
+        name: cpu
+        container: {{ .Chart.Name }}-mcp
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.mcp.hpa.averageUtilization.cpu }}    
+    - type: ContainerResource
+      containerResource:
+        name: memory
+        container: {{ .Chart.Name }}-mcp
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.mcp.hpa.averageUtilization.memory }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.mcp.hpa.scaleUp.stabilizationWindowSeconds }} # increased stabilization window for scale up
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: {{ .Values.mcp.hpa.scaleUp.pods }} # reduced value for scale up
+          periodSeconds: {{ .Values.mcp.hpa.scaleUp.periodSeconds }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.mcp.hpa.scaleDown.stabilizationWindowSeconds }} # increased stabilization window for scale down
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: {{ .Values.mcp.hpa.scaleDown.pods }} # reduced value for scale down
+          periodSeconds: {{ .Values.mcp.hpa.scaleDown.periodSeconds }}
+{{- end }}

@@ -41,6 +41,21 @@ operator:
     requests:
       cpu: 125m
       memory: 256Mi
+mcp:
+  hpa:
+    enabled: "{{ restack_hpa_enabled:HPA=false }}"
+    maxReplicas: "{{ input:MCP_MAX_REPLICAS=4 }}"
+    minReplicas: 1
+    averageUtilization:
+      cpu: 80
+      memory: 80
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 125m
+      memory: 256Mi
 backend:
   hpa:
     enabled: "{{ restack_hpa_enabled:HPA=false }}"

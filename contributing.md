@@ -1,13 +1,11 @@
-
 # Contribute
 
 ## Local minikube setup
 
-
 Insecure registry allows to use Docker desktop images in minikube.
 
 ```
-minikube start --insecure-registry='10.0.0.0/24' --extra-config=kubelet.max-pods=1000
+minikube start --kubernetes-version=1.30.0 --insecure-registry='10.0.0.0/24' --extra-config=kubelet.max-pods=1000
 ```
 
 To enable pushing local Docker images to minikube, enable the registry addon
@@ -38,8 +36,8 @@ helm install \
     --set server.replicaCount=1 \
     --set cassandra.config.cluster_size=1 \
     --set elasticsearch.replicas=1 \
-    --set prometheus.enabled=false \
-    --set grafana.enabled=false \
+    --set prometheus.enabled=true \
+    --set grafana.enabled=true \
     temporal temporal \
     --timeout 15m
 ```
@@ -77,7 +75,7 @@ docker build -t my-image .
 In /restack directory
 
 ```
-helm install restack-1 restack/restack-helm -f ./values-minikube.yaml
+helm install restack-1 restack/restack-helm -f ./restack/values-minikube.yaml
 ```
 
 Get Restack engine Developer UI address from:
@@ -85,4 +83,3 @@ Get Restack engine Developer UI address from:
 ```
 minikube service restack-1-restack-helm --url
 ```
-

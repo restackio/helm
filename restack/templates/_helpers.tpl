@@ -125,6 +125,24 @@ app.kubernetes.io/name: {{ include "restack.name" . }}-operator
 app.kubernetes.io/instance: {{ .Release.Name }}-operator
 {{- end -}}
 
+
+{{- define "restack.mcpLabels" -}}
+helm.sh/chart: {{ include "restack.chart" . }}
+{{ include "restack.mcpSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Mcp selector labels
+*/}}
+{{- define "restack.mcpSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "restack.name" . }}-mcp
+app.kubernetes.io/instance: {{ .Release.Name }}-mcp
+{{- end -}}
+
 {{/*
 Create the name of the service account to use
 */}}

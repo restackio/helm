@@ -2,12 +2,12 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "restack.fullname" . }}-stream-hpa
+  name: {{ include "restack.fullname" . }}-engine-stream-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "restack.fullname" . }}-stream
+    name: {{ include "restack.fullname" . }}-engine-stream
   minReplicas: {{ .Values.stream.hpa.minReplicas }}
   maxReplicas: {{ .Values.stream.hpa.maxReplicas }}
   metrics:
@@ -17,14 +17,14 @@ spec:
         target:
           type: Utilization
           averageUtilization: {{ .Values.stream.hpa.averageUtilization.cpu }}
-        container: {{ .Chart.Name }}-stream
+        container: {{ .Chart.Name }}-engine-stream
     - type: ContainerResource
       containerResource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ .Values.stream.hpa.averageUtilization.memory }}
-        container: {{ .Chart.Name }}-stream
+        container: {{ .Chart.Name }}-engine-stream
   behavior:
     scaleUp:
       stabilizationWindowSeconds: {{ .Values.stream.hpa.scaleUp.stabilizationWindowSeconds }} # increased stabilization window for scale up

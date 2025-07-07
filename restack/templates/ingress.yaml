@@ -33,11 +33,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $fullName }}
+                name: {{ $fullName }}-engine-ui
                 port:
                   number: 5233
               {{- else }}
-              serviceName: {{ $fullName }}
+              serviceName: {{ $fullName }}-engine-ui
               servicePort: 5233
               {{- end }}
           - path: /api
@@ -45,11 +45,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $fullName }}
+                name: {{ $fullName }}-engine-api
                 port:
                   number: 6233
               {{- else }}
-              serviceName: {{ $fullName }}
+              serviceName: {{ $fullName }}-engine-api
               servicePort: 6233
               {{- end }}
           - path: /stream
@@ -57,11 +57,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $fullName }}-stream
+                name: {{ $fullName }}-engine-stream
                 port:
                   number: 9233
               {{- else }}
-              serviceName: {{ $fullName }}-stream
+              serviceName: {{ $fullName }}-engine-stream
               servicePort: 9233
               {{- end }}
           - path: /operator
@@ -69,12 +69,24 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $fullName }}-operator
+                name: {{ $fullName }}-engine-operator
                 port:
                   number: 10233
               {{- else }}
-              serviceName: {{ $fullName }}-operator
+              serviceName: {{ $fullName }}-engine-operator
               servicePort: 10233
+              {{- end }}
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}-engine-mcp
+                port:
+                  number: 11233
+              {{- else }}
+              serviceName: {{ $fullName }}-engine-mcp
+              servicePort: 11233
               {{- end }}
     {{- end }}
 {{- end }}

@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "restack.fullname" . }}-engine-stream
+  labels:
+    {{- include "restack.streamLabels" . | nindent 4 }}
+  annotations:
+    reloader.stakater.com/search: "true"
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "restack.streamSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "restack.streamSelectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "restack.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.logs.gcp.bucket }}
+      initContainers:
+        - name: workload-identity-initcontainer
+          image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
+          command:
+          - '/bin/bash'
+          - '-c'
+          - |
+            curl -sS -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 60 --connect-timeout 3 --fail --retry-all-errors > /dev/null && exit 0 || echo 'Retry limit exceeded. Failed to wait for metadata server to be available. Check if the gke-metadata-server Pod in the kube-system namespace is healthy.' >&2; exit 1
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-stream
+          envFrom:
+            - configMapRef:
+                name: {{ include "restack.fullname" . }}-configmap
+            - secretRef:
+                name: {{ include "restack.fullname" . }}-secret
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: ghcr.io/restackio/restack-stream-cloud:main
+          imagePullPolicy: Always
+          ports:
+            - port: 9233
+              targetPort: 9233
+              protocol: TCP
+              name: stream
+              containerPort: 9233
+          resources:
+            limits:
+              cpu: {{ .Values.stream.resources.cpu }}
+              memory: {{ .Values.stream.resources.memory }}
+            requests:
+              cpu: {{ .Values.stream.resources.cpu }}
+              memory: {{ .Values.stream.resources.memory }}
+
+        {{- if .Values.logs.enabled }}
+        # Sidecar container for logging
+        - name: deployment-logs
+          image: ghcr.io/restackio/k8s-logs-sidecar:main
+          imagePullPolicy: Always
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: DEPLOYMENT_NAME
+              value: {{ include "restack.fullname" . }}-stream
+            - name: GCS_BUCKET_NAME
+              value: {{ .Values.logs.gcp.bucket }}
+            - name: POD_SELECTOR
+              value: {{ include "restack.name" . }}-stream
+            - name: CONTAINER_LOGS_NAME
+              value: {{ .Chart.Name }}-stream
+        {{- end }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

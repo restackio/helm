@@ -108,14 +108,33 @@ operator:
   resources:
     cpu: 250m
     memory: 256Mi
-    
+
+mcp:
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    averageUtilization:
+      cpu: 80
+      memory: 80
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      pods: 1
+      periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      pods: 1
+      periodSeconds: 60
+  resources:
+    cpu: 250m
+    memory: 256Mi
 
 logs:
   bucket: "default-bucket-name"
 
 imagePullSecrets: []
-nameOverride: ''
-fullnameOverride: ''
+nameOverride: ""
+fullnameOverride: ""
 
 envs: []
 secrets: []
@@ -146,7 +165,8 @@ service:
   type: ClusterIP
 
 ingress:
-  hosts: []
+  hosts:
+    []
     # - host: restack_hostname
   enabled: true
   annotations: {}
@@ -159,7 +179,7 @@ affinity: {}
 
 vpa:
   enabled: false
-  updateMode: 'Auto'
+  updateMode: "Auto"
   minAllowed:
     cpu: 25m
     memory: 64Mi

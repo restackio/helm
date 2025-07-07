@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "restack.fullname" . }}-operator
+  name: {{ include "restack.fullname" . }}-engine-operator
   labels:
     {{- include "restack.operatorLabels" . | nindent 4 }}
   annotations:
