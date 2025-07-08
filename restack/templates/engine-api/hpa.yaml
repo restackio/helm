@@ -1,0 +1,43 @@
+{{- if .Values.api.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "restack.fullname" . }}-engine-api-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "restack.fullname" . }}-engine-api
+  minReplicas: {{ .Values.api.hpa.minReplicas }}
+  maxReplicas: {{ .Values.api.hpa.maxReplicas }}
+  metrics:
+    - type: ContainerResource
+      containerResource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.api.hpa.averageUtilization.cpu }}
+        container: {{ .Chart.Name }}-engine-api
+    - type: ContainerResource
+      containerResource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.api.hpa.averageUtilization.memory }}
+        container: {{ .Chart.Name }}-engine-api
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.api.hpa.scaleUp.stabilizationWindowSeconds }} # increased stabilization window for scale up
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: {{ .Values.api.hpa.scaleUp.pods }} # reduced value for scale up
+          periodSeconds: {{ .Values.api.hpa.scaleUp.periodSeconds }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.api.hpa.scaleDown.stabilizationWindowSeconds }} # increased stabilization window for scale down
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: {{ .Values.api.hpa.scaleDown.pods }} # reduced value for scale down
+          periodSeconds: {{ .Values.api.hpa.scaleDown.periodSeconds }}
+{{- end }}

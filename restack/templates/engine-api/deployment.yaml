@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "restack.fullname" . }}-engine-api
   labels:
-    {{- include "restack.labels" . | nindent 4 }}
+    {{- include "restack.apiLabels" . | nindent 4 }}
   annotations:
     reloader.stakater.com/search: "true"
 spec:
@@ -14,11 +14,11 @@ spec:
       maxUnavailable: 1
   selector:
     matchLabels:
-      {{- include "restack.selectorLabels" . | nindent 6 }}
+      {{- include "restack.apiSelectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "restack.selectorLabels" . | nindent 8 }}
+        {{- include "restack.apiSelectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -38,7 +38,7 @@ spec:
             curl -sS -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 60 --connect-timeout 3 --fail --retry-all-errors > /dev/null && exit 0 || echo 'Retry limit exceeded. Failed to wait for metadata server to be available. Check if the gke-metadata-server Pod in the kube-system namespace is healthy.' >&2; exit 1
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-api
           envFrom:
             - configMapRef:
                 name: {{ include "restack.fullname" . }}-configmap
@@ -46,7 +46,7 @@ spec:
                 name: {{ include "restack.fullname" . }}-secret
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: ghcr.io/restackio/restack-cloud:main
+          image: ghcr.io/restackio/restack-api-cloud:main
           imagePullPolicy: Always
           ports:
             - port: 6233
@@ -56,11 +56,11 @@ spec:
               containerPort: 6233
           resources:
             limits:
-              cpu: {{ .Values.engine.resources.cpu }}
-              memory: {{ .Values.engine.resources.memory }}
+              cpu: {{ .Values.api.resources.cpu }}
+              memory: {{ .Values.api.resources.memory }}
             requests:
-              cpu: {{ .Values.engine.resources.cpu }}
-              memory: {{ .Values.engine.resources.memory }}
+              cpu: {{ .Values.api.resources.cpu }}
+              memory: {{ .Values.api.resources.memory }}
 
         {{- if .Values.logs.enabled }}
         # Sidecar container for logging
