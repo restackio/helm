@@ -38,7 +38,7 @@ spec:
             curl -sS -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 60 --connect-timeout 3 --fail --retry-all-errors > /dev/null && exit 0 || echo 'Retry limit exceeded. Failed to wait for metadata server to be available. Check if the gke-metadata-server Pod in the kube-system namespace is healthy.' >&2; exit 1
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}-api
+        - name: {{ .Chart.Name }}-engine-api
           envFrom:
             - configMapRef:
                 name: {{ include "restack.fullname" . }}-configmap
@@ -73,13 +73,13 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: DEPLOYMENT_NAME
-              value: {{ include "restack.fullname" . }}
+              value: {{ include "restack.fullname" . }}-engine-api
             - name: GCS_BUCKET_NAME
               value: {{ .Values.logs.gcp.bucket }}
             - name: POD_SELECTOR
-              value: {{ include "restack.name" . }}
+              value: {{ include "restack.name" . }}-engine-api
             - name: CONTAINER_LOGS_NAME
-              value: {{ .Chart.Name }}
+              value: {{ .Chart.Name }}-engine-api
         {{- end }}
 
       {{- with .Values.nodeSelector }}
