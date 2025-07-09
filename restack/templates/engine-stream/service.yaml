@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "restack.fullname" . }}-stream
+  name: {{ include "restack.fullname" . }}-engine-stream
   labels:
     {{- include "restack.streamLabels" . | nindent 4 }}
 spec:
@@ -10,7 +10,7 @@ spec:
     - port: 9233
       targetPort: 9233
       protocol: TCP
-      name: stream
+      name: engine-stream
       
   selector:
     {{- include "restack.streamSelectorLabels" . | nindent 4 }}
