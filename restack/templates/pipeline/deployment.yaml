@@ -32,7 +32,7 @@ spec:
       initContainers:
         - name: wait-for-restack
           image: busybox
-          command: ['sh', '-c', 'until nc -z -v -w30 {{ include "restack.fullname" . }} 6233; do echo "Waiting for restack..."; sleep 5; done']
+          command: ['sh', '-c', 'until nc -z -v -w30 {{ include "restack.fullname" . }}-engine-api 6233; do echo "Waiting for restack..."; sleep 5; done']
         {{- if .Values.logs.gcp.bucket }}
         - name: workload-identity-initcontainer
           image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
