@@ -13,4 +13,4 @@ spec:
       name: engine-mcp
       
   selector:
-    {{- include "restack.operatorSelectorLabels" . | nindent 4 }}
+    {{- include "restack.mcpSelectorLabels" . | nindent 4 }}
