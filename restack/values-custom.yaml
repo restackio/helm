@@ -56,6 +56,21 @@ mcp:
     requests:
       cpu: 125m
       memory: 256Mi
+api:
+  hpa:
+    enabled: "{{ restack_hpa_enabled:HPA=false }}"
+    maxReplicas: "{{ input:API_MAX_REPLICAS=3 }}"
+    minReplicas: 1
+    averageUtilization:
+      cpu: 80
+      memory: 80
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 125m
+      memory: 256Mi
 backend:
   hpa:
     enabled: "{{ restack_hpa_enabled:HPA=false }}"

@@ -114,6 +114,15 @@ mcp:
       cpu: 80
       memory: 80
 
+api:
+  hpa:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 6
+    averageUtilization:
+      cpu: 80
+      memory: 80
+
   resources:
     limits:
       cpu: 250m
