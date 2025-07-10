@@ -1,16 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "restack.fullname" . }}-engine-ui
-  labels:
-    {{- include "restack.uiLabels" . | nindent 4 }}
+  name: { { include "restack.fullname" . } }
+  labels: { { - include "restack.labels" . | nindent 4 } }
 spec:
-  type: {{ .Values.service.type }}
+  type: { { .Values.service.type } }
   ports:
     - port: 5233
       targetPort: 5233
       protocol: TCP
       name: engine-ui
-      
-  selector:
-    {{- include "restack.uiSelectorLabels" . | nindent 4 }}
+
+  selector: { { - include "restack.selectorLabels" . | nindent 4 } }
