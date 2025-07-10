@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "restack.fullname" . }}-engine-ui
   labels:
-    {{- include "restack.labels" . | nindent 4 }}
+    {{- include "restack.uiLabels" . | nindent 4 }}
   annotations:
     reloader.stakater.com/search: "true"
 spec:
@@ -14,11 +14,11 @@ spec:
       maxUnavailable: 1
   selector:
     matchLabels:
-      {{- include "restack.selectorLabels" . | nindent 6 }}
+      {{- include "restack.uiSelectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "restack.selectorLabels" . | nindent 8 }}
+        {{- include "restack.uiSelectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

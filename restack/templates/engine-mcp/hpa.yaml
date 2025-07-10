@@ -14,14 +14,14 @@ spec:
     - type: ContainerResource
       containerResource:
         name: cpu
-        container: {{ .Chart.Name }}-mcp
+        container: {{ .Chart.Name }}-engine-mcp
         target:
           type: Utilization
           averageUtilization: {{ .Values.mcp.hpa.averageUtilization.cpu }}    
     - type: ContainerResource
       containerResource:
         name: memory
-        container: {{ .Chart.Name }}-mcp
+        container: {{ .Chart.Name }}-engine-mcp
         target:
           type: Utilization
           averageUtilization: {{ .Values.mcp.hpa.averageUtilization.memory }}
