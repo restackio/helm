@@ -161,26 +161,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}-api
 {{- end -}}
 
 {{/*
-Engine UI deployment labels
-*/}}
-{{- define "restack.uiLabels" -}}
-helm.sh/chart: {{ include "restack.chart" . }}
-{{ include "restack.uiSelectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end -}}
-
-{{/*
-Engine UI selector labels
-*/}}
-{{- define "restack.uiSelectorLabels" -}}
-app.kubernetes.io/name: {{ include "restack.name" . }}-ui
-app.kubernetes.io/instance: {{ .Release.Name }}-ui
-{{- end -}}
-
-{{/*
 Create the name of the service account to use
 */}}
 {{- define "restack.serviceAccountName" -}}

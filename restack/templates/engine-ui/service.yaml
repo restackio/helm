@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "restack.fullname" . }}-engine-ui
   labels:
-    {{- include "restack.uiLabels" . | nindent 4 }}
+    {{- include "restack.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -11,6 +11,6 @@ spec:
       targetPort: 5233
       protocol: TCP
       name: engine-ui
-      
+
   selector:
-    {{- include "restack.uiSelectorLabels" . | nindent 4 }}
+    {{- include "restack.selectorLabels" . | nindent 4 }}

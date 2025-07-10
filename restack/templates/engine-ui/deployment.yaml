@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "restack.fullname" . }}-engine-ui
   labels:
-    {{- include "restack.uiLabels" . | nindent 4 }}
+    {{- include "restack.labels" . | nindent 4 }}
   annotations:
     reloader.stakater.com/search: "true"
 spec:
@@ -14,11 +14,11 @@ spec:
       maxUnavailable: 1
   selector:
     matchLabels:
-      {{- include "restack.uiSelectorLabels" . | nindent 6 }}
+      {{- include "restack.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "restack.uiSelectorLabels" . | nindent 8 }}
+        {{- include "restack.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -82,7 +82,7 @@ spec:
             - name: GCS_BUCKET_NAME
               value: {{ .Values.logs.gcp.bucket }}
             - name: POD_SELECTOR
-              value: {{ include "restack.name" . }}-ui
+              value: {{ include "restack.name" . }}
             - name: CONTAINER_LOGS_NAME
               value: {{ .Chart.Name }}-engine-ui
         {{- end }}
