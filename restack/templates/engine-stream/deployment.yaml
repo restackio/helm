@@ -77,7 +77,7 @@ spec:
             - name: GCS_BUCKET_NAME
               value: {{ .Values.logs.gcp.bucket }}
             - name: POD_SELECTOR
-              value: {{ include "restack.name" . }}-engine-stream
+              value: {{ include "restack.name" . }}-stream
             - name: CONTAINER_LOGS_NAME
               value: {{ .Chart.Name }}-engine-stream
         {{- end }}
