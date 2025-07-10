@@ -47,8 +47,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "restack.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "restack.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "restack.name" . }}-engine-ui
+app.kubernetes.io/instance: {{ .Release.Name }}-engine-ui
 {{- end -}}
 
 {{/*
@@ -84,8 +84,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Stream selector labels
 */}}
 {{- define "restack.streamSelectorLabels" -}}
-app.kubernetes.io/name: {{ include "restack.name" . }}-stream
-app.kubernetes.io/instance: {{ .Release.Name }}-stream
+app.kubernetes.io/name: {{ include "restack.name" . }}-engine-stream
+app.kubernetes.io/instance: {{ .Release.Name }}-engine-stream
 {{- end -}}
 
 {{/*
@@ -121,8 +121,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Operator selector labels
 */}}
 {{- define "restack.operatorSelectorLabels" -}}
-app.kubernetes.io/name: {{ include "restack.name" . }}-operator
-app.kubernetes.io/instance: {{ .Release.Name }}-operator
+app.kubernetes.io/name: {{ include "restack.name" . }}-engine-operator
+app.kubernetes.io/instance: {{ .Release.Name }}-engine-operator
 {{- end -}}
 
 {{- define "restack.mcpLabels" -}}
@@ -138,8 +138,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Mcp selector labels
 */}}
 {{- define "restack.mcpSelectorLabels" -}}
-app.kubernetes.io/name: {{ include "restack.name" . }}-mcp
-app.kubernetes.io/instance: {{ .Release.Name }}-mcp
+app.kubernetes.io/name: {{ include "restack.name" . }}-engine-mcp
+app.kubernetes.io/instance: {{ .Release.Name }}-engine-mcp
 {{- end -}}
 
 
@@ -156,8 +156,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Api selector labels
 */}}
 {{- define "restack.apiSelectorLabels" -}}
-app.kubernetes.io/name: {{ include "restack.name" . }}-api
-app.kubernetes.io/instance: {{ .Release.Name }}-api
+app.kubernetes.io/name: {{ include "restack.name" . }}-engine-api
+app.kubernetes.io/instance: {{ .Release.Name }}-engine-api
 {{- end -}}
 
 {{/*

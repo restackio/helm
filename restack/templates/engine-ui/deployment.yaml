@@ -52,7 +52,7 @@ spec:
             - port: 5233
               targetPort: 5233
               protocol: TCP
-              name: engine-frontend
+              name: engine-ui
               containerPort: 5233
             - port: 6233
               targetPort: 6233
