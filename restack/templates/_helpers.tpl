@@ -47,8 +47,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "restack.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "restack.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "restack.name" . }}-engine-ui
+app.kubernetes.io/instance: {{ .Release.Name }}-engine-ui
 {{- end -}}
 
 {{/*
