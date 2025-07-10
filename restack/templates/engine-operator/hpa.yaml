@@ -14,14 +14,14 @@ spec:
     - type: ContainerResource
       containerResource:
         name: cpu
-        container: {{ .Chart.Name }}-operator
+        container: {{ .Chart.Name }}-engine-operator
         target:
           type: Utilization
           averageUtilization: {{ .Values.operator.hpa.averageUtilization.cpu }}    
     - type: ContainerResource
       containerResource:
         name: memory
-        container: {{ .Chart.Name }}-operator
+        container: {{ .Chart.Name }}-engine-operator
         target:
           type: Utilization
           averageUtilization: {{ .Values.operator.hpa.averageUtilization.memory }}

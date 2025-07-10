@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "restack.fullname" . }}-engine-api
   labels:
-    {{- include "restack.labels" . | nindent 4 }}
+    {{- include "restack.apiLabels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:

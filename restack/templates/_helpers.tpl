@@ -47,8 +47,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "restack.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "restack.name" . }}-engine-ui
-app.kubernetes.io/instance: {{ .Release.Name }}-engine-ui
+app.kubernetes.io/name: {{ include "restack.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{/*
@@ -158,6 +158,26 @@ Api selector labels
 {{- define "restack.apiSelectorLabels" -}}
 app.kubernetes.io/name: {{ include "restack.name" . }}-engine-api
 app.kubernetes.io/instance: {{ .Release.Name }}-engine-api
+{{- end -}}
+
+{{/*
+Engine UI deployment labels
+*/}}
+{{- define "restack.uiLabels" -}}
+helm.sh/chart: {{ include "restack.chart" . }}
+{{ include "restack.uiSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Engine UI selector labels
+*/}}
+{{- define "restack.uiSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "restack.name" . }}-engine-ui
+app.kubernetes.io/instance: {{ .Release.Name }}-engine-ui
 {{- end -}}
 
 {{/*
