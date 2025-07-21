@@ -78,6 +78,19 @@ spec:
             - name: CONTAINER_LOGS_NAME
               value: {{ .Chart.Name }}-engine-operator
         {{- end }}
+        
+        {{- if .Values.payloadCodec.enabled }}
+        # Sidecar container payload codec server
+        - name: payload-codec-server
+          image: ghcr.io/restackio/restack-payload-codec-cloud:main
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 12233
+              name: payload-codec
+          env:
+            - name: GCS_BUCKET_NAME
+              value: {{ .Values.logs.gcp.bucket }}            
+        {{- end }}
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
