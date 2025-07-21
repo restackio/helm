@@ -110,8 +110,6 @@ stream:
     memory: 256Mi
 
 operator:
-  payloadCodec:
-    enabled: false
   hpa:
     enabled: false
     minReplicas: 1
