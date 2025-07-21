@@ -110,6 +110,8 @@ stream:
     memory: 256Mi
 
 operator:
+  payloadCodec:
+    enabled: false
   hpa:
     enabled: false
     minReplicas: 1
@@ -173,6 +175,9 @@ logs:
   enabled: false
   gcp:
     bucket: "default-bucket-name"
+
+payloadCodec:
+  enabled: false
 
 imagePullSecrets: []
 nameOverride: ""
