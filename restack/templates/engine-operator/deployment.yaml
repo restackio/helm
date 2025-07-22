@@ -51,6 +51,17 @@ spec:
           ports:
             - containerPort: 10233
               name: operator
+          {{- if .Values.payloadCodec.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 12233
+              host: localhost
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          {{- end }}
           resources:
             limits:
               cpu: {{ .Values.operator.resources.cpu }}
@@ -89,7 +100,23 @@ spec:
               name: payload-codec
           env:
             - name: GCS_BUCKET_NAME
-              value: {{ .Values.logs.gcp.bucket }}            
+              value: {{ .Values.logs.gcp.bucket }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 12233
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 12233
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
         {{- end }}
 
       {{- with .Values.nodeSelector }}
