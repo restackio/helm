@@ -50,7 +50,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 2
             timeoutSeconds: 3
-            failureThreshold: 30  # Allow many failures during startup
+            failureThreshold: 10
           {{- end }}
           resources:
             limits:
