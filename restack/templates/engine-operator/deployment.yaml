@@ -27,8 +27,9 @@ spec:
       serviceAccountName: {{ include "restack.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.logs.gcp.bucket }}
+      {{- if or .Values.logs.gcp.bucket .Values.payloadCodec.enabled }}
       initContainers:
+        {{- if .Values.logs.gcp.bucket }}
         - name: workload-identity-initcontainer
           image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
           command:
@@ -36,6 +37,21 @@ spec:
           - '-c'
           - |
             curl -sS -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 60 --connect-timeout 3 --fail --retry-all-errors > /dev/null && exit 0 || echo 'Retry limit exceeded. Failed to wait for metadata server to be available. Check if the gke-metadata-server Pod in the kube-system namespace is healthy.' >&2; exit 1
+        {{- end }}
+        {{- if .Values.payloadCodec.enabled }}
+        - name: wait-for-codec-server
+          image: busybox:1.35
+          command:
+            - '/bin/sh'
+            - '-c'
+            - |
+              echo "Waiting for payload codec server to be ready..."
+              until wget --spider -q http://localhost:12233/; do
+                echo "Payload codec server not ready yet, waiting..."
+                sleep 2
+              done
+              echo "Payload codec server is ready!"
+        {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}-engine-operator
@@ -51,17 +67,6 @@ spec:
           ports:
             - containerPort: 10233
               name: operator
-          {{- if .Values.payloadCodec.enabled }}
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 12233
-              host: localhost
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 3
-          {{- end }}
           resources:
             limits:
               cpu: {{ .Values.operator.resources.cpu }}
@@ -101,22 +106,6 @@ spec:
           env:
             - name: GCS_BUCKET_NAME
               value: {{ .Values.logs.gcp.bucket }}
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 12233
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 12233
-            initialDelaySeconds: 10
-            periodSeconds: 30
-            timeoutSeconds: 3
-            failureThreshold: 3
         {{- end }}
 
       {{- with .Values.nodeSelector }}
