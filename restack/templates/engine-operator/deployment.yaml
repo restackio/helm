@@ -47,7 +47,7 @@ spec:
               path: /v2/health/head
               port: 12233
               host: localhost
-            initialDelaySeconds: 5
+            initialDelaySeconds: 60
             periodSeconds: 2
             timeoutSeconds: 3
             failureThreshold: 10
