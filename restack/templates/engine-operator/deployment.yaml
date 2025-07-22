@@ -43,8 +43,7 @@ spec:
               name: operator
           {{- if .Values.payloadCodec.enabled }}
           startupProbe:
-            httpGet:
-              path: /v2/health/head
+            tcpSocket:
               port: 12233
               host: localhost
             initialDelaySeconds: 60
