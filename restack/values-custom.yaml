@@ -80,7 +80,7 @@ backend:
       cpu: 80
       memory: 80
 
-codec:
+payloadCodec:
   enabled: "{{ restack_codec_enabled:CODEC=false }}"
   hpa:
     enabled: "{{ restack_hpa_enabled:HPA=false }}"
@@ -89,6 +89,7 @@ codec:
     averageUtilization:
       cpu: 80
       memory: 80
+
 ingress:
   hosts:
     - host: "{{ restack_application_hostname:APP_HOSTNAME }}"
