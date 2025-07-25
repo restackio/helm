@@ -1,0 +1,84 @@
+{{- if .Values.codec.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "restack.fullname" . }}-engine-codec
+  labels:
+    {{- include "restack.codecLabels" . | nindent 4 }}
+  annotations:
+    reloader.stakater.com/search: "true"
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "restack.codecSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "restack.codecSelectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "restack.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-engine-codec
+          envFrom:
+            - configMapRef:
+                name: {{ include "restack.fullname" . }}-configmap
+            - secretRef:
+                name: {{ include "restack.fullname" . }}-secret
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: ghcr.io/restackio/restack-payload-codec-cloud:main
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 12233
+              name: codec
+          resources:
+            limits:
+              cpu: {{ .Values.codec.resources.cpu }}
+              memory: {{ .Values.codec.resources.memory }}
+            requests:
+              cpu: {{ .Values.codec.resources.cpu }}
+              memory: {{ .Values.codec.resources.memory }}
+
+        {{- if .Values.logs.enabled }}
+        # Sidecar container for logging
+        - name: deployment-logs
+          image: ghcr.io/restackio/k8s-logs-sidecar:main
+          imagePullPolicy: Always
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: DEPLOYMENT_NAME
+              value: {{ include "restack.fullname" . }}-engine-codec
+            - name: GCS_BUCKET_NAME
+              value: {{ .Values.logs.gcp.bucket }}
+            - name: POD_SELECTOR
+              value: {{ include "restack.name" . }}-codec
+            - name: CONTAINER_LOGS_NAME
+              value: {{ .Chart.Name }}-engine-codec
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

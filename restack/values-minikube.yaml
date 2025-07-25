@@ -138,6 +138,9 @@ logs:
   aws:
     bucket:
 
+codec:
+  enabled: false
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

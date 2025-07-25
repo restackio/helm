@@ -88,5 +88,17 @@ spec:
               serviceName: {{ $fullName }}-engine-mcp
               servicePort: 11233
               {{- end }}
+          - path: /v2
+            pathType: Prefix
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}-engine-codec
+                port:
+                  number: 12233
+              {{- else }}
+              serviceName: {{ $fullName }}-engine-codec
+              servicePort: 12233
+              {{- end }}
     {{- end }}
 {{- end }}

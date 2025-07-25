@@ -174,8 +174,26 @@ logs:
   gcp:
     bucket: "default-bucket-name"
 
-payloadCodec:
+codec:
   enabled: false
+  hpa:
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 10
+    averageUtilization:
+      cpu: 75
+      memory: 75
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      pods: 1
+      periodSeconds: 120
+    scaleDown:
+      stabilizationWindowSeconds: 120
+      pods: 1
+      periodSeconds: 120
+  resources:
+    cpu: 250m
+    memory: 256Mi
 
 imagePullSecrets: []
 nameOverride: ""
