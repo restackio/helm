@@ -106,7 +106,6 @@ spec:
             - name: CONTAINER_LOGS_NAME
               value: {{ .Chart.Name }}-backend
         {{- end }}
-
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

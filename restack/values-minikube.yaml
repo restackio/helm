@@ -138,6 +138,16 @@ logs:
   aws:
     bucket:
 
+payloadCodec:
+  enabled: false
+  hpa:
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 10
+    averageUtilization:
+      cpu: 75
+      memory: 75
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

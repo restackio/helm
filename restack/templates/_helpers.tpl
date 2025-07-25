@@ -160,6 +160,23 @@ app.kubernetes.io/name: {{ include "restack.name" . }}-api
 app.kubernetes.io/instance: {{ .Release.Name }}-api
 {{- end -}}
 
+{{- define "restack.codecLabels" -}}
+helm.sh/chart: {{ include "restack.chart" . }}
+{{ include "restack.codecSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Api selector labels
+*/}}
+{{- define "restack.codecSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "restack.name" . }}-codec
+app.kubernetes.io/instance: {{ .Release.Name }}-codec
+{{- end -}}
+
 {{/*
 Create the name of the service account to use
 */}}
@@ -170,3 +187,4 @@ Create the name of the service account to use
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+

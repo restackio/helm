@@ -1,9 +1,10 @@
+{{- if .Values.payloadCodec.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "restack.fullname" . }}-engine-operator
+  name: {{ include "restack.fullname" . }}-engine-codec
   labels:
-    {{- include "restack.operatorLabels" . | nindent 4 }}
+    {{- include "restack.codecLabels" . | nindent 4 }}
   annotations:
     reloader.stakater.com/search: "true"
 spec:
@@ -14,11 +15,11 @@ spec:
       maxUnavailable: 1
   selector:
     matchLabels:
-      {{- include "restack.operatorSelectorLabels" . | nindent 6 }}
+      {{- include "restack.codecSelectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "restack.operatorSelectorLabels" . | nindent 8 }}
+        {{- include "restack.codecSelectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -28,7 +29,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}-engine-operator
+        - name: {{ .Chart.Name }}-engine-codec
           envFrom:
             - configMapRef:
                 name: {{ include "restack.fullname" . }}-configmap
@@ -36,18 +37,18 @@ spec:
                 name: {{ include "restack.fullname" . }}-secret
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: ghcr.io/restackio/restack-operator-cloud:main
+          image: ghcr.io/restackio/restack-payload-codec-cloud:main
           imagePullPolicy: Always
           ports:
-            - containerPort: 10233
-              name: operator
+            - containerPort: 12233
+              name: codec
           resources:
             limits:
-              cpu: {{ .Values.operator.resources.cpu }}
-              memory: {{ .Values.operator.resources.memory }}
+              cpu: {{ .Values.payloadCodec.resources.cpu }}
+              memory: {{ .Values.payloadCodec.resources.memory }}
             requests:
-              cpu: {{ .Values.operator.resources.cpu }}
-              memory: {{ .Values.operator.resources.memory }}
+              cpu: {{ .Values.payloadCodec.resources.cpu }}
+              memory: {{ .Values.payloadCodec.resources.memory }}
 
         {{- if .Values.logs.enabled }}
         # Sidecar container for logging
@@ -60,13 +61,13 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: DEPLOYMENT_NAME
-              value: {{ include "restack.fullname" . }}-engine-operator
+              value: {{ include "restack.fullname" . }}-engine-codec
             - name: GCS_BUCKET_NAME
               value: {{ .Values.logs.gcp.bucket }}
             - name: POD_SELECTOR
-              value: {{ include "restack.name" . }}-operator
+              value: {{ include "restack.name" . }}-codec
             - name: CONTAINER_LOGS_NAME
-              value: {{ .Chart.Name }}-engine-operator
+              value: {{ .Chart.Name }}-engine-codec
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -80,3 +81,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
