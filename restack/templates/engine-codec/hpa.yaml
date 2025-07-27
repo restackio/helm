@@ -1,4 +1,4 @@
-{{- if and .Values.payloadCodec.enabled .Values.payloadCodec.hpa.enabled }}
+{{- if .Values.payloadCodec.hpa.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
