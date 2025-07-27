@@ -81,14 +81,21 @@ backend:
       memory: 80
 
 payloadCodec:
-  enabled: "{{ restack_codec_enabled:CODEC=false }}"
+  enabled: false
   hpa:
-    enabled: "{{ restack_hpa_enabled:HPA=false }}"
-    maxReplicas: "{{ input:CODEC_MAX_REPLICAS=10 }}"
+    enabled: false
+    maxReplicas: 1
     minReplicas: 1
     averageUtilization:
       cpu: 80
       memory: 80
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 125m
+      memory: 256Mi
 
 ingress:
   hosts:
