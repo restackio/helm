@@ -88,7 +88,6 @@ spec:
               serviceName: {{ $fullName }}-engine-mcp
               servicePort: 11233
               {{- end }}
-          {{- if .Values.payloadCodec.enabled }}
           - path: /v2
             pathType: Prefix
             backend:
@@ -101,6 +100,5 @@ spec:
               serviceName: {{ $fullName }}-engine-codec
               servicePort: 12233
               {{- end }}
-          {{- end }}
     {{- end }}
 {{- end }}
