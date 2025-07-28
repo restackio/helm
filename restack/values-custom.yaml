@@ -81,7 +81,6 @@ backend:
       memory: 80
 
 payloadCodec:
-  enabled: false
   hpa:
     enabled: false
     maxReplicas: 1
