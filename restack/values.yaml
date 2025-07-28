@@ -175,7 +175,6 @@ logs:
     bucket: "default-bucket-name"
 
 payloadCodec:
-  enabled: false
   hpa:
     enabled: false
     minReplicas: 3
