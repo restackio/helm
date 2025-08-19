@@ -14,6 +14,7 @@ readinessProbe:
   enabled: false
 
 backend:
+  enabled: false
   hpa:
     enabled: false
     minReplicas: 3
@@ -65,10 +66,11 @@ pipeline:
       periodSeconds: 60
 
 engine:
+  enabled: false
   resources:
     cpu: 2000m
     memory: 1024Mi
-
+  
 api:
   hpa:
     enabled: false
