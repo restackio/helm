@@ -60,6 +60,9 @@ pipeline:
       cpu: 50m
       memory: 1Gi
 
+frontend:
+  enabled: false
+
 # Engine deployments
 
 engine:
