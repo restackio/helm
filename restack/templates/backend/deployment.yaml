@@ -29,6 +29,15 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
+       - name: wait-for-restack-engine-api
+          image: busybox
+          env:
+            - name: RESTACK_ENGINE_API_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "restack.fullname" . }}-configmap
+                  key: RESTACK_ENGINE_API_ADDRESS
+          command: ['sh', '-c', 'until wget -q --spider --timeout=30 "$RESTACK_ENGINE_API_ADDRESS/api/health" 2>/dev/null; do echo "Waiting for restack at $RESTACK_ENGINE_API_ADDRESS..."; sleep 5; done']
         {{- if .Values.logs.gcp.bucket }}
         - name: workload-identity-initcontainer
           image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
