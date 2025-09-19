@@ -1,0 +1,119 @@
+{{- if .Values.app.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "restack.fullname" . }}-app
+  labels:
+    {{- include "restack.appLabels" . | nindent 4 }}
+  annotations:
+    reloader.stakater.com/search: "true"
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "restack.appSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "restack.appSelectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "restack.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- if .Values.logs.gcp.bucket }}
+        - name: workload-identity-initcontainer
+          image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
+          command:
+          - '/bin/bash'
+          - '-c'
+          - |
+            curl -sS -H 'Metadata-Flavor: Google' 'http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token' --retry 30 --retry-connrefused --retry-max-time 60 --connect-timeout 3 --fail --retry-all-errors > /dev/null && exit 0 || echo 'Retry limit exceeded. Failed to wait for metadata server to be available. Check if the gke-metadata-server Pod in the kube-system namespace is healthy.' >&2; exit 1
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-app
+          envFrom:
+            - configMapRef:
+                name: {{ include "restack.fullname" . }}-configmap
+            - secretRef:
+                name: {{ include "restack.fullname" . }}-secret
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - port: 80
+              targetPort: 80
+              protocol: TCP
+              name: http
+              containerPort: 80
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          {{- end }}
+          resources:
+            limits:
+              cpu: {{ .Values.app.resources.cpu }}
+              memory: {{ .Values.app.resources.memory }}
+            requests:
+              cpu: {{ .Values.app.resources.cpu }}
+              memory: {{ .Values.app.resources.memory }}
+        
+        {{- if .Values.logs.enabled }}
+        # Sidecar container for logging
+        - name: deployment-logs
+          image: ghcr.io/restackio/k8s-logs-sidecar:main
+          imagePullPolicy: Always
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: DEPLOYMENT_NAME
+              value: {{ include "restack.fullname" . }}-app
+            - name: GCS_BUCKET_NAME
+              value: {{ .Values.logs.gcp.bucket }}
+            - name: POD_SELECTOR
+              value: {{ include "restack.name" . }}-app
+            - name: CONTAINER_LOGS_NAME
+              value: {{ .Chart.Name }}-app
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

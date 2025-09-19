@@ -71,6 +71,20 @@ app.kubernetes.io/name: {{ include "restack.name" . }}-backend
 app.kubernetes.io/instance: {{ .Release.Name }}-backend
 {{- end -}}
 
+{{- define "restack.appLabels" -}}
+helm.sh/chart: {{ include "restack.chart" . }}
+{{ include "restack.appSelectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{- define "restack.appSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "restack.name" . }}-app
+app.kubernetes.io/instance: {{ .Release.Name }}-app
+{{- end -}}
+
 {{- define "restack.streamLabels" -}}
 helm.sh/chart: {{ include "restack.chart" . }}
 {{ include "restack.streamSelectorLabels" . }}

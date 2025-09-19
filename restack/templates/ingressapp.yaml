@@ -1,4 +1,4 @@
-{{- if .Values.frontend.enabled -}}
+{{- if .Values.app.enabled -}}
 {{- $fullName := include "restack.fullname" . -}}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
@@ -9,7 +9,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}-frontend
+  name: {{ $fullName }}
   annotations:
     {{- if .Values.ingress.annotations }}
       {{- toYaml .Values.ingress.annotations | nindent 4 }}
@@ -34,11 +34,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $fullName }}-frontend
+                name: {{ $fullName }}-app
                 port:
                   number: 80
               {{- else }}
-              serviceName: {{ $fullName }}-frontend
+              serviceName: {{ $fullName }}-app
               servicePort: 80
               {{- end }}
     {{- end }}
