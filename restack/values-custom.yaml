@@ -80,6 +80,9 @@ backend:
       cpu: 80
       memory: 80
 
+frontend:
+  enabled: false
+
 payloadCodec:
   hpa:
     enabled: false

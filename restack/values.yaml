@@ -70,6 +70,9 @@ engine:
   resources:
     cpu: 2000m
     memory: 1024Mi
+
+frontend:
+  enabled: false
   
 api:
   hpa:
