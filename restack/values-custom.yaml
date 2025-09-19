@@ -80,9 +80,6 @@ backend:
       cpu: 80
       memory: 80
 
-frontend:
-  enabled: false
-
 payloadCodec:
   hpa:
     enabled: false
@@ -103,6 +100,7 @@ ingress:
   hosts:
     - host: "{{ restack_application_hostname:APP_HOSTNAME }}"
   enabled: true
+  custom: false
 secrets: "{{ input.multiple.secrets:SECRETS }}"
 pipeline:
   hpa:

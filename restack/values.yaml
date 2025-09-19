@@ -70,9 +70,6 @@ engine:
   resources:
     cpu: 2000m
     memory: 1024Mi
-
-frontend:
-  enabled: false
   
 api:
   hpa:
@@ -236,6 +233,7 @@ ingress:
     []
     # - host: restack_hostname
   enabled: true
+  custom: false
   annotations: {}
 
 nodeSelector: {}
