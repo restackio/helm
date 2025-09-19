@@ -1,0 +1,17 @@
+{{- if .Values.app.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "restack.fullname" . }}-app
+  labels:
+    {{- include "restack.appLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "restack.appSelectorLabels" . | nindent 4 }}
+{{- end }}

@@ -188,7 +188,6 @@ service:
 ingress:
   hosts: []
   enabled: false
-  custom: false
   annotations: {}
 
 nodeSelector: {}
@@ -196,6 +195,12 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+app:
+  enabled: false
+  resources:
+    cpu: 250m
+    memory: 256Mi
 
 vpa:
   enabled: false
