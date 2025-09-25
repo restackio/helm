@@ -13,12 +13,26 @@ livenessProbe:
 readinessProbe:
   enabled: false
 
-
 app:
   enabled: false
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    averageUtilization:
+      cpu: 75
+      memory: 75
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      pods: 1
+      periodSeconds: 120
+    scaleDown:
+      stabilizationWindowSeconds: 120
+      pods: 1
+      periodSeconds: 120
   resources:
-    cpu: 250m
-    memory: 256Mi
+    cpu: 2000m
+    memory: 1024Mi
   livenessProbe:
     enabled: false
   readinessProbe:
