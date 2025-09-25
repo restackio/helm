@@ -9,7 +9,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ $fullName }}-engine
   annotations:
     {{- if .Values.ingress.annotations }}
       {{- toYaml .Values.ingress.annotations | nindent 4 }}
