@@ -38,7 +38,7 @@ spec:
                   name: {{ include "restack.fullname" . }}-configmap
                   key: RESTACK_ENGINE_API_ADDRESS
           command: ['sh', '-c', 'until wget -q --spider --timeout=30 "https://$RESTACK_ENGINE_API_ADDRESS" 2>/dev/null; do echo "Waiting for restack at https://$RESTACK_ENGINE_API_ADDRESS..."; sleep 5; done']
-        {{- if .Values.logs.bucket }}
+        {{- if eq .Values.cloudProvider "gcp" }}
         - name: workload-identity-initcontainer
           image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
           command:
