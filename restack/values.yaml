@@ -201,6 +201,8 @@ logs:
   gcp:
     bucket: "default-bucket-name"
 
+cloudProvider: "gcp"
+
 payloadCodec:
   hpa:
     enabled: false
