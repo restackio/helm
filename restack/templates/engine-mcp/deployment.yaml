@@ -28,7 +28,7 @@ spec:
       serviceAccountName: {{ include "restack.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.logs.bucket }}
+      {{- if eq .Values.cloudProvider "gcp" }}
       initContainers:
         - name: workload-identity-initcontainer
           image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
@@ -72,6 +72,8 @@ spec:
                   fieldPath: metadata.namespace
             - name: DEPLOYMENT_NAME
               value: {{ include "restack.fullname" . }}-engine-mcp
+            - name: CLOUD_PROVIDER
+              value: {{ .Values.cloudProvider }}
             - name: BUCKET_NAME
               value: {{ .Values.logs.bucket }}
             - name: POD_SELECTOR
