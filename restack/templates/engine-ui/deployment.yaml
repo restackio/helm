@@ -20,6 +20,9 @@ spec:
     metadata:
       labels:
         {{- include "restack.selectorLabels" . | nindent 8 }}
+        {{- if and .Values.logs.enabled (eq .Values.cloudProvider "azure") }}
+        azure.workload.identity/use: "true"
+        {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -80,10 +83,17 @@ spec:
                   fieldPath: metadata.namespace
             - name: DEPLOYMENT_NAME
               value: {{ include "restack.fullname" . }}-engine-ui
-            - name: BUCKET_NAME
-              value: {{ .Values.logs.bucket }}
             - name: CLOUD_PROVIDER
               value: {{ .Values.cloudProvider }}
+            {{- if eq .Values.cloudProvider "azure" }}
+            - name: AZURE_CONTAINER_NAME
+              value: {{ .Values.logs.azure.container }}
+            - name: AZURE_STORAGE_ACCOUNT
+              value: {{ .Values.logs.azure.storageAccount }}
+            {{- else }}
+            - name: BUCKET_NAME
+              value: {{ .Values.logs.gcp.bucket }}
+            {{- end }}
             - name: POD_SELECTOR
               value: {{ include "restack.name" . }}
             - name: CONTAINER_LOGS_NAME
