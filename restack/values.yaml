@@ -200,8 +200,11 @@ logs:
   enabled: false
   gcp:
     bucket: "default-bucket-name"
+  azure:
+    container: ""
+    storageAccount: ""
 
-cloudProvider: "gcp"
+cloudProvider: "gcp"  # Can be "gcp", "aws", or "azure"
 
 payloadCodec:
   hpa:
