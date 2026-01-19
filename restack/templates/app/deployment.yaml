@@ -29,7 +29,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
-        {{- if .Values.logs.gcp.bucket }}
+        {{- if .Values.logs.bucket }}
         - name: workload-identity-initcontainer
           image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
           command:
@@ -97,8 +97,10 @@ spec:
                   fieldPath: metadata.namespace
             - name: DEPLOYMENT_NAME
               value: {{ include "restack.fullname" . }}-app
-            - name: GCS_BUCKET_NAME
-              value: {{ .Values.logs.gcp.bucket }}
+            - name: BUCKET_NAME
+              value: {{ .Values.logs.bucket }}
+            - name: CLOUD_PROVIDER
+              value: {{ .Values.cloudProvider }}
             - name: POD_SELECTOR
               value: {{ include "restack.name" . }}-app
             - name: CONTAINER_LOGS_NAME

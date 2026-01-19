@@ -33,7 +33,7 @@ spec:
         - name: wait-for-restack
           image: busybox
           command: ['sh', '-c', 'until nc -z -v -w30 {{ include "restack.fullname" . }}-engine-api 6233; do echo "Waiting for restack..."; sleep 5; done']
-        {{- if .Values.logs.gcp.bucket }}
+        {{- if .Values.logs.bucket }}
         - name: workload-identity-initcontainer
           image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
           command:
@@ -101,8 +101,12 @@ spec:
                   fieldPath: metadata.namespace
             - name: DEPLOYMENT_NAME
               value: {{ include "restack.fullname" . }}-pipeline
-            - name: GCS_BUCKET_NAME
-              value: {{ .Values.logs.gcp.bucket }}
+            - name: CLOUD_PROVIDER
+              value: {{ .Values.cloudProvider }}
+            - name: CLOUD_PROVIDER
+              value: {{ .Values.cloudProvider }}
+            - name: BUCKET_NAME
+              value: {{ .Values.logs.bucket }}
             - name: POD_SELECTOR
               value: {{ include "restack.name" . }}-pipeline
             - name: CONTAINER_LOGS_NAME

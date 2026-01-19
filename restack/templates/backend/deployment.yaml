@@ -38,7 +38,7 @@ spec:
                   name: {{ include "restack.fullname" . }}-configmap
                   key: RESTACK_ENGINE_API_ADDRESS
           command: ['sh', '-c', 'until wget -q --spider --timeout=30 "https://$RESTACK_ENGINE_API_ADDRESS" 2>/dev/null; do echo "Waiting for restack at https://$RESTACK_ENGINE_API_ADDRESS..."; sleep 5; done']
-        {{- if .Values.logs.gcp.bucket }}
+        {{- if .Values.logs.bucket }}
         - name: workload-identity-initcontainer
           image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
           command:
@@ -106,8 +106,10 @@ spec:
                   fieldPath: metadata.namespace
             - name: DEPLOYMENT_NAME
               value: {{ include "restack.fullname" . }}-backend
-            - name: GCS_BUCKET_NAME
-              value: {{ .Values.logs.gcp.bucket }}
+            - name: CLOUD_PROVIDER
+              value: {{ .Values.cloudProvider }}
+            - name: BUCKET_NAME
+              value: {{ .Values.logs.bucket }}
             - name: POD_SELECTOR
               value: {{ include "restack.name" . }}-backend
             - name: CONTAINER_LOGS_NAME
