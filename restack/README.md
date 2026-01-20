@@ -29,6 +29,47 @@ helm install restack-1 restack/restack-helm -f ./values.yaml
 
 See [`values.yaml`](./values.yaml) for all available configuration options.
 
+### Logs Configuration
+
+The chart supports shipping application logs to cloud storage via a sidecar container. Configure based on your cloud provider:
+
+#### GCP (Google Cloud Storage)
+```yaml
+logs:
+  enabled: true
+  bucket: "your-gcs-bucket-name"
+cloudProvider: "gcp"
+```
+
+#### Azure (Blob Storage)
+```yaml
+logs:
+  enabled: true
+  azure:
+    container: "your-container-name"
+    storageAccount: "yourstorageaccount"
+cloudProvider: "azure"
+```
+
+#### AWS (S3)
+```yaml
+logs:
+  enabled: true
+  bucket: "your-s3-bucket-name"
+cloudProvider: "aws"
+```
+
+| Cloud Provider | Required Configuration |
+|----------------|------------------------|
+| GCP | `logs.bucket` |
+| AWS | `logs.bucket` |
+| Azure | `logs.azure.container`, `logs.azure.storageAccount` |
+
+**Note:** Authentication is handled via cloud-native mechanisms:
+- **GCP**: Workload Identity (ServiceAccount annotation)
+- **Azure**: Workload Identity (Pod label `azure.workload.identity/use: "true"` added automatically)
+- **AWS**: IAM Roles for Service Accounts
+
 ## Chart Source
 
 - Chart YAML: [`Chart.yaml`](./Chart.yaml)

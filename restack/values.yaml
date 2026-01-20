@@ -198,8 +198,7 @@ stream:
 
 logs:
   enabled: false
-  gcp:
-    bucket: "default-bucket-name"
+  bucket: "default-bucket-name"
   azure:
     container: ""
     storageAccount: ""
