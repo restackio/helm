@@ -109,7 +109,7 @@ spec:
               value: {{ .Values.logs.azure.storageAccount }}
             {{- else }}
             - name: BUCKET_NAME
-              value: {{ .Values.logs.gcp.bucket }}
+              value: {{ .Values.logs.bucket }}
             {{- end }}
             - name: POD_SELECTOR
               value: {{ include "restack.name" . }}-app
