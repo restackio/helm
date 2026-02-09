@@ -39,6 +39,8 @@ spec:
             - secretRef:
                 name: {{ include "restack.fullname" . }}-secret
           env:
+            - name: CLOUD_PROVIDER
+              value: {{ .Values.cloudProvider }}
             {{- if eq .Values.cloudProvider "azure" }}
             - name: AZURE_CONTAINER_NAME
               value: {{ .Values.logs.azure.container }}
